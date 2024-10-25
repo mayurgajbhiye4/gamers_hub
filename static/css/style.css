@@ -1,0 +1,73 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+h1{
+    padding-top: 20px;
+    font-size:4rem;
+    color: hsl(213, 85%, 23%);
+}
+.post a{
+    text-decoration: none;
+    background-color: hsl(208, 95%, 30%);
+    color: white;
+    font-size: 25px;
+    border: none;
+    border-radius: 15px;
+    padding: 8px 50px ;
+}
+.post a:hover{
+    background-color: hsl(208, 95%, 40%);
+    color: white;
+}
+.loginPage{
+    background-color: hsl(0, 17%, 95%);
+}   
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+    border-bottom: 1px solid hsl(0, 0%, 88%);
+}
+.navbar-logo a{
+    display: flex;
+    text-decoration: none;
+    align-items: center;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: hsl(202, 84%, 17%);
+}
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+.login {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+.sign-up {
+    background-color: hsl(202, 84%, 17%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.sign-up:hover {
+    background-color: hsl(202, 84%, 44%);
+}
+footer{
+    font-size: 2rem;
+    border-top: 1px solid hsl(0, 0%, 88%);
+    padding: 10px 20px; 
+    margin-top: auto;
+}
