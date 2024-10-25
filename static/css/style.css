@@ -9,11 +9,11 @@ body {
 h1{
     padding-top: 20px;
     font-size:4rem;
-    color: hsl(213, 85%, 23%);
+    color: hsl(7, 97%, 46%);
 }
 .post a{
     text-decoration: none;
-    background-color: hsl(208, 95%, 30%);
+    background-color: hsl(5, 92%, 49%);
     color: white;
     font-size: 25px;
     border: none;
@@ -21,7 +21,7 @@ h1{
     padding: 8px 50px ;
 }
 .post a:hover{
-    background-color: hsl(208, 95%, 40%);
+    background-color: hsl(13, 89%, 38%);
     color: white;
 }
 .loginPage{
@@ -41,7 +41,7 @@ h1{
     align-items: center;
     font-size: 1.7rem;
     font-weight: 700;
-    color: hsl(202, 84%, 17%);
+    color: hsl(5, 95%, 47%);
 }
 .navbar-right {
     display: flex;
@@ -54,7 +54,7 @@ h1{
     font-size: 14px;
 }
 .sign-up {
-    background-color: hsl(202, 84%, 17%);
+    background-color: hsl(7, 90%, 50%);
     color: white;
     padding: 10px 15px;
     border-radius: 5px;
@@ -63,7 +63,7 @@ h1{
     transition: background-color 0.2s;
 }
 .sign-up:hover {
-    background-color: hsl(202, 84%, 44%);
+    background-color: hsl(9, 81%, 35%);
 }
 footer{
     font-size: 2rem;
