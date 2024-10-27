@@ -1,0 +1,29 @@
+.sidebar {
+    height: 100vh;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar .nav-link {
+    font-size: 18px;
+    color: #333;
+    padding: 10px 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link.active {
+    color: #28a745; /* Green for active link */
+    font-weight: bold;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f8f9fa;
+}
+
+.sidebar .btn {
+    border-radius: 25px;
+    font-size: 18px;
+}
+
+.main-content {
+    padding: 20px;
+}

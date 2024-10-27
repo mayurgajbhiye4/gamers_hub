@@ -1,0 +1,22 @@
+.search-bar input {
+    border-radius: 20px;
+    padding: 10px;
+}
+
+/* Suggestions card styling */
+.suggestions-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile images */
+.suggestions-card img {
+    width: 40px;
+    height: 40px;
+}
+
+/* Follow button styling */
+.suggestions-card .btn {
+    border-radius: 20px;
+    font-size: 14px;
+}

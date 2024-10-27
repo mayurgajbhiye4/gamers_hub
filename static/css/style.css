@@ -21,7 +21,7 @@ h1{
     padding: 8px 50px ;
 }
 .post a:hover{
-    background-color: hsl(13, 89%, 38%);
+    background-color: hsl(0, 76%, 87%);
     color: white;
 }
 .loginPage{
@@ -41,7 +41,7 @@ h1{
     align-items: center;
     font-size: 1.7rem;
     font-weight: 700;
-    color: hsl(5, 95%, 47%);
+    color: hsl(1, 92%, 48%);
 }
 .navbar-right {
     display: flex;
