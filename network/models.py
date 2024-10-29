@@ -5,11 +5,13 @@ from django.contrib.auth.models import User, Group, Permission
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
-    friends = models.ManyToManyField('self', blank=True, symmetrical=True, related_name='user_friends')
+    avatar = models.ImageField(upload_to='media/avatars/', default='avatars/default.png', blank=True)
+
+    # Many-to-many relationship for following system
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
 
     def __str__(self):
-        return self.user.username 
+        return self.user.username
 
 
 class Post(models.Model):
@@ -25,6 +27,9 @@ class Comment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class FriendRequest(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
+    from_user = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.from_user.username} → {self.to_user.username}"
