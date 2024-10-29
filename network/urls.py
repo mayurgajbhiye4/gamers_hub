@@ -6,7 +6,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', views.home, name='home'),
     path('signup/', views.signUp, name='signup'),
-    path('', include('django.contrib.auth.urls'))
+    path('', include('django.contrib.auth.urls')),
+    path('following/', views.following, name='following'),
 ]
 
 if settings.DEBUG:

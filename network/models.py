@@ -1,29 +1,16 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import User, Group, Permission
 
 # Create your models here.
-class User(AbstractUser):
-    avatar = models.ImageField(upload_to='media/avatars/', blank=True, null=True)
-    gamer_tag = models.CharField(max_length=50, unique=True)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
-    friends = models.ManyToManyField('self', blank=True)
-
-    groups = models.ManyToManyField(
-        Group,
-        related_name='gamer_users',
-        blank=True,
-        help_text='The groups this user belongs to.'
-    )
-    
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name='gamer_users_permissions',
-        blank=True,
-        help_text='Specific permissions for this user.'
-    )
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
+    friends = models.ManyToManyField('self', blank=True, symmetrical=True, related_name='user_friends')
 
     def __str__(self):
-        return self.gamer_tag
+        return self.user.username 
+
 
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
