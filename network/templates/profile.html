@@ -59,8 +59,8 @@
       <!-- Sidebar -->
       <div class="col-md-3 sidebar">
         <div class="d-flex flex-column align-items-center py-4">
-          <img src="https://via.placeholder.com/120" alt="User Avatar" class="profile-pic mb-3">
-          <h5>@gamer_username</h5>
+          <img src="{{ request.user.userprofile.avatar.url }}" alt="User Avatar" class="profile-pic mb-3">
+          <h5>@{{ request.user.username }}</h5>
         </div>
         <div class="list-group list-group-flush">
           <a href="{% url 'home' %}">🏠 Home</a>
@@ -76,10 +76,10 @@
       <div class="col-md-9">
         <div class="py-4 px-5">
           <div class="d-flex align-items-center">
-            <img src="https://via.placeholder.com/120" class="profile-pic me-4" alt="Profile Picture">
+            <img src="{{ request.user.userprofile.avatar.url }}" class="profile-pic me-4" alt="Profile Picture">
             <div>
-              <h3>Gamer Tag</h3>
-              <p>@gamer_username</p>
+              <h3>{{ first_name }} {{ last_name }}</h3>
+              <p>@{{ request.user.username }}</p>
               <button class="btn btn-primary">Edit Profile</button>
             </div>
           </div>

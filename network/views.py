@@ -65,6 +65,8 @@ def profile(request, username):
     # Context to pass to the template
     context = {
         'profile_user': user,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
         'posts': posts,
         'is_own_profile': is_own_profile,
     }
