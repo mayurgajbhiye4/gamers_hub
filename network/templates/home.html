@@ -37,17 +37,56 @@
                   <a class="nav-link text-danger" href="#"><i class="bi bi-bookmark me-2"></i> Saved</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link text-danger" href="{% url 'profile' request.user.username %}"><i class="bi bi-person me-2"></i> Profile</a>
-                </li>
-                <li class="nav-item">
                   <a href="#" class="nav-link text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
                     <i class="bi bi-box-arrow-right me-2"></i>Log Out
                   </a>
                 </li>
               </ul>
-              <button class="btn btn-success w-100 mt-4">Create Post</button>
+              <button class="btn btn-success w-100 mt-4" data-bs-toggle="modal" data-bs-target="#createPostModal">
+                Create Post
+              </button>
             </div>
           </nav>
+
+        <!-- Create Post Modal -->
+        <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="createPostModalLabel">Create a Post</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <div class="modal-body">
+                          <textarea name="text" class="form-control mb-3" placeholder="What's on your mind?" maxlength="1000" required></textarea>
+
+                          <label>Upload Image (Max: 20MB)</label>
+                          <input type="file" name="image" class="form-control mb-3" accept="image/*">
+
+                          <label>Upload Video (Max: 200MB)</label>
+                          <input type="file" name="video" class="form-control mb-3" accept="video/*">
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-primary">Post</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+        </div>
+
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            <ul>
+              {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
 
           <!-- Bootstrap Logout Confirmation Modal -->
           <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">

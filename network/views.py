@@ -5,6 +5,7 @@ from .forms import signupForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile, FriendRequest, User
+from django.core.exceptions import ValidationError
 
 @login_required(login_url='/login/')
 def home(request):
@@ -72,3 +73,39 @@ def profile(request, username):
     }
 
     return render(request, 'profile.html', context)
+
+def validate_file_size(file, max_size):
+    if file.size > max_size:
+        raise ValidationError(f"File size exceeds {max_size / (1024 * 1024)} MB")
+
+
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        text = request.POST.get('text')
+        image = request.FILES.get('image')
+        video = request.FILES.get('video')
+
+        if image and video:
+            # Handle the error (e.g., render the page with an error message)
+            return render(request, 'create_post.html', {
+                'error': 'Please upload either an image or a video, not both.'
+            })
+
+        # Validate file sizes
+        if image:
+            validate_file_size(image, max_size=20 * 1024 * 1024)  # 20MB limit
+        if video:
+            validate_file_size(video, max_size=200 * 1024 * 1024)  # 200MB limit
+
+        # Save the post
+        post = Post.objects.create(
+            author=request.user,
+            text=text,
+            image=image,
+            video=video
+        )
+        post.save()
+        return redirect('home')  # Redirect to the homepage or another page
+
+    return render(request, 'create_post.html')

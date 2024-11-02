@@ -11,6 +11,7 @@ urlpatterns = [
     path('unfollow/<int:user_id>/', views.unfollow_user, name='unfollow_user'),
     path('following/', views.following, name='following'),  
     path('profile/<str:username>/', views.profile, name='profile'),
+    path('create_post/', views.create_post, name='create_post'),
 ]
 
 if settings.DEBUG:
