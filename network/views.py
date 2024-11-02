@@ -32,11 +32,18 @@ def following(request):
     # Get all users the current user is following
     following = user_profile.following.all()
 
+    return render(request, 'following.html', {
+        'following': following,
+    })
+
+@login_required
+def followers(request):
+    user_profile = request.user.userprofile
+
     # Get all users following the current user
     followers = user_profile.followers.all()
 
-    return render(request, 'following.html', {
-        'following': following,
+    return render(request, 'followers.html', {
         'followers': followers
     })
 

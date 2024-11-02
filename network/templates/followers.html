@@ -10,15 +10,15 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Following</h1>
+        <h1 class="text-center mt-5">Followers</h1>
         <div class="list-group">
-            {% for user in following %}
+            {% for user in followers %}
                 <a href="#" class="list-group-item list-group-item-action">
-                    <img src="{{ user.avatar.url }}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
+                    <img src="{{ request.user.userprofile.avatar.url }}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
                     {{ user.user.username }}
                 </a>
             {% empty %}
-                <p class="text-center">You are not following anyone yet.</p>
+                <p class="text-center">You don't have any followers yet.</p>
             {% endfor %}
         </div>
     </div>
