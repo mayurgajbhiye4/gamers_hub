@@ -17,7 +17,7 @@
     <div class="app-container container-fluid">
         <div class="row vh-100 g-0">
           <!-- Sidebar -->
-          <nav class="col-xxl-2 col-xl-3 col-lg-3 bg-white sidebar d-flex flex-column">
+          <nav class="col-xxl-2 col-xl-3 col-lg-3 bg-dark text-white sidebar d-flex flex-column">
             <div class="position-sticky" style="top: 20px;">
               <a class="navbar-brand my-3" href="{% url 'profile' request.user.username %}">
                 <img src="{{  request.user.userprofile.avatar.url}}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
@@ -25,21 +25,21 @@
               </a>  
               <ul class="nav flex-column mt-4">
                 <li class="nav-item">
-                  <a class="nav-link text-danger" href="/"><i class="bi bi-file-text me-2"></i> Home</a>
+                  <a class="nav-link text-white" href="/"><i class="bi bi-file-text me-2"></i> Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link text-danger" href="#"><i class="bi bi-people me-2"></i>Notifications</a>
+                  <a class="nav-link text-white" href="#"><i class="bi bi-people me-2"></i>Notifications</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link text-danger" href="#"><i class="bi bi-bookmark me-2"></i> Saved</a>
+                  <a class="nav-link text-white" href="#"><i class="bi bi-bookmark me-2"></i> Saved</a>
                 </li>
                 <li class="nav-item">
-                  <a href="#" class="nav-link text-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                  <a href="#" class="nav-link text-white" data-bs-toggle="modal" data-bs-target="#logoutModal">
                     <i class="bi bi-box-arrow-right me-2"></i>Log Out
                   </a>
                 </li>
               </ul>
-              <button class="btn btn-success w-100 mt-4" data-bs-toggle="modal" data-bs-target="#createPostModal">
+              <button class="btn btn-outline-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
                 Create Post
               </button>
             </div>
@@ -137,7 +137,10 @@
                     </div>
                     <p class="mt-3">I'm a lazy texter 😬, unless you are my baby 😍 or my bestfriend 😂</p>
                     <div class="d-flex justify-content-between">
-                        <span><i class="bi bi-heart text-muted"></i> 1</span>
+                      <a href="#" class="like-button">
+                        <span style="text-decoration: none;"><i class="bi bi-heart text-muted" ></i>1</span>
+                      </a>
+                        
                         <span><i class="bi bi-chat text-muted"></i> 0</span>
                         <span><i class="bi bi-bookmark text-muted"></i></span>
                     </div>
@@ -217,7 +220,7 @@
           </main>
       
           <!-- Aside Content -->
-          <aside class="col-xxl-3 col-xl-3 col-lg-3 px-3 d-flex flex-column">
+          <aside class="col-xxl-3 col-xl-3 col-lg-3 px-3 d-flex flex-column bg-dark">
             <div class="position-sticky" style="top: 20px;">
               <div class="search-bar mb-4">
                 <input type="text" class="form-control" placeholder="Search Network">

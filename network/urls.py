@@ -13,6 +13,11 @@ urlpatterns = [
     path('followers/', views.followers, name='followers'),  
     path('profile/<str:username>/', views.profile, name='profile'),
     path('create_post/', views.create_post, name='create_post'),
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
+
+    path('like/<int:post_id>/', views.like_post, name='like_post'),
+    path('comment/<int:post_id>/', views.comment_post, name='comment_post'),
+    path('view/<int:post_id>/', views.view_post, name='view_post'),
 ]
 
 if settings.DEBUG:

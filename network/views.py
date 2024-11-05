@@ -4,8 +4,9 @@ from .models import Post, Comment
 from .forms import signupForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import UserProfile, FriendRequest, User
+from .models import *
 from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
 @login_required(login_url='/login/')
 def home(request):
@@ -116,3 +117,69 @@ def create_post(request):
         return redirect('home')  # Redirect to the homepage or another page
 
     return render(request, 'create_post.html')
+
+
+@login_required 
+def edit_profile(request):
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    all_users = User.objects.exclude(id=request.user.id)  # Exclude self from following options
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        bio = request.POST.get('bio')
+        avatar = request.FILES.get('avatar')
+        following_ids = request.POST.getlist('following')
+
+        request.user.first_name = first_name
+        request.user.last_name = last_name
+        request.user.save()
+
+        # Update bio
+        if bio:
+            user_profile.bio = bio
+
+        # Update avatar if provided
+        if avatar:
+            user_profile.avatar = avatar
+
+        # Update following list
+        user_profile.following.set(following_ids)  # Set the selected users as following
+
+        # Save the profile
+        user_profile.save()
+
+        # Redirect to the profile page after saving
+        return redirect('profile', username=request.user.username)
+
+    context = {
+        'user_profile': user_profile,
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+        'all_users': all_users,
+    }
+    return render(request, 'profile.html', context)
+
+@login_required
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        like.delete()  # Toggle like
+    return JsonResponse({'likes_count': post.likes.count()})
+
+@login_required
+def comment_post(request, post_id):
+    if request.method == 'POST':
+        post = get_object_or_404(Post, id=post_id)
+        text = request.POST.get('text')
+        comment = Comment.objects.create(user=request.user, post=post, text=text)
+        return redirect('post_detail', post_id=post_id)
+    
+    
+@login_required
+def view_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.views_count = models.F('views_count') + 1  # Increment views
+    post.save(update_fields=['views_count'])
+    return redirect('post_detail', post_id=post_id)
