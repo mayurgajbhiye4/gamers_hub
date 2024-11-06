@@ -10,6 +10,7 @@
 </head>
 <body>
     <div class="container mt-5">
+        <a href="{% url 'profile' request.user.username %}">Go Back</a>
         <h1 class="text-center mt-5">Followers</h1>
         <div class="list-group">
             {% for user in followers %}
