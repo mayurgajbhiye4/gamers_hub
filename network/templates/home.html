@@ -3,261 +3,286 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamers Hub</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/home.css">
-    <link rel="stylesheet" href="/static/feed.css">
-    <link rel="stylesheet" href="/static/sidebar.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamers Hub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/home.css">
+  <link rel="stylesheet" href="/static/feed.css">
+  <link rel="stylesheet" href="/static/sidebar.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
+
 <body style="background-color: black">
-    <div class="app-container container-fluid">
-        <div class="row vh-100 g-0">
-          <!-- Sidebar -->
-          <nav class="col-xxl-2 col-xl-3 col-lg-3 text-white sidebar d-flex flex-column" style="background-color: black">
-            <div class="position-sticky" style="top: 20px;">
-              <a class="navbar-brand my-3" href="{% url 'profile' request.user.username %}">
-                <img src="{{  request.user.userprofile.avatar.url}}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
-                <strong>@{{ request.user.username }}</strong> 
-              </a>  
-              <ul class="nav flex-column mt-4">
-                <!-- <li class="nav-item">
+  <div class="app-container container-fluid">
+    <div class="row vh-100 g-0">
+      <!-- Sidebar -->
+      <nav class="col-xxl-2 col-xl-3 col-lg-3 text-white sidebar d-flex flex-column" style="background-color: black">
+        <div class="position-sticky" style="top: 20px;">
+          <a class="navbar-brand my-3" href="{% url 'profile' request.user.username %}">
+            <img src="{{  request.user.userprofile.avatar.url}}" class="rounded-circle me-2" alt="Avatar" width="40"
+              height="40">
+            <strong>@{{ request.user.username }}</strong>
+          </a>
+          <ul class="nav flex-column mt-4">
+            <!-- <li class="nav-item">
                   <a class="nav-link text-white" href="{% url 'home' %}"><i class="bi bi-house-door me-2"></i>Home</a>
-                </li> --> 
-                <li class="nav-item">
-                  <a class="nav-link text-white" href="#"><i class="bi bi-bell me-2"></i>Notifications</a>
-                </li>
-              </ul>
-              <button class="btn btn-outline-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
-                Create Post
-              </button>
-            </div>
-          </nav>
-
-        <!-- Create Post Modal -->
-        <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <h5 class="modal-title" id="createPostModalLabel">Create a Post</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
-                      {% csrf_token %}
-                      <div class="modal-body">
-                          <textarea name="text" class="form-control mb-3" placeholder="What's on your mind?" maxlength="1000" required></textarea>
-
-                          <label>Upload Image (Max: 20MB)</label>
-                          <input type="file" name="image" class="form-control mb-3" accept="image/*">
-
-                          <label>Upload Video (Max: 200MB)</label>
-                          <input type="file" name="video" class="form-control mb-3" accept="video/*">
-                      </div>
-                      <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                          <button type="submit" class="btn btn-primary">Post</button>
-                      </div>
-                  </form>
-              </div>
-          </div>
+                </li> -->
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#"><i class="bi bi-bell me-2"></i>Notifications</a>
+            </li>
+          </ul>
+          <button class="btn btn-outline-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
+            Create Post
+          </button>
         </div>
+      </nav>
 
-        {% if form.errors %}
-          <div class="alert alert-danger">
-            <ul>
-              {% for field, errors in form.errors.items %}
-                {% for error in errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              {% endfor %}
-            </ul>
+      <!-- Create Post Modal -->
+      <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="createPostModalLabel">Create a Post</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="modal-body">
+                <textarea name="text" class="form-control mb-3" placeholder="What's on your mind?" maxlength="1000"
+                  required></textarea>
+
+                <label>Upload Image (Max: 20MB)</label>
+                <input type="file" name="image" class="form-control mb-3" accept="image/*">
+
+                <label>Upload Video (Max: 200MB)</label>
+                <input type="file" name="video" class="form-control mb-3" accept="video/*">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Post</button>
+              </div>
+            </form>
           </div>
-        {% endif %}
-      
-          <!-- Main Content -->
-          <main class="col-xxl-7 col-xl-6 col-lg-6 px-4 main-content" style="background-color: black">
-            <div class="container mt-5">
-              <h3 class="mb-4" style="color: white;">All Posts</h3>
-              <!-- Post Cards -->
-              <div class="card mb-4">
-                <div class="card-body">
-                  <div class="d-flex align-items-center">
-                    <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
-                    <div>
-                      <strong>Ayush Kumar</strong> <span class="text-muted">@ayush</span>
-                      <span class="text-muted">· 6:20 p.m. Oct 09 2020</span>
-                    </div>
-                  </div>
-                  <p class="mt-3">It's better to have loved and lost than never to have loved at all.<br> - By Alfred Tennyson</p>
-                </div>
-              </div>
-            
-              <!-- Another Post -->
-              <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
-                        <div>
-                            <strong>Ishika Arya</strong> <span class="text-muted">@ishikaarya</span> 
-                            <span class="text-muted">· 6:01 p.m. Oct 09 2020</span>
-                        </div>
-                    </div>
-                    <p class="mt-3">I'm a lazy texter 😬, unless you are my baby 😍 or my bestfriend 😂</p>
-                    <div class="d-flex justify-content-between">
-                      <a href="#" class="like-button">
-                        <span style="text-decoration: none;"><i class="bi bi-heart text-muted" ></i>1</span>
-                      </a>
-                        
-                        <span><i class="bi bi-chat text-muted"></i> 0</span>
-                        <span><i class="bi bi-bookmark text-muted"></i></span>
-                    </div>
-                </div>
-            </div>
-    
-            <!-- Post with Image -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
-                        <div>
-                            <strong>Victoria Pedretti</strong> <span class="text-muted">@victoria</span> 
-                            <span class="text-muted">· 5:38 p.m. Oct 09 2020</span>
-                        </div>
-                    </div>
-                    <p class="mt-3">McDonald's french fries are not real food.<br>
-                        Just found one under my car seat from two months ago and it looked perfect.<br>
-                        Tasted fine, too.
-                    </p>
-                    <img src="https://via.placeholder.com/500x300" class="img-fluid rounded mb-3" alt="Fries">
-                    <div class="d-flex justify-content-between">
-                        <span><i class="bi bi-heart text-muted"></i> 0</span>
-                        <span><i class="bi bi-chat text-muted"></i> 0</span>
-                        <span><i class="bi bi-bookmark text-muted"></i></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post with Image -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
-                        <div>
-                            <strong>Victoria Pedretti</strong> <span class="text-muted">@victoria</span> 
-                            <span class="text-muted">· 5:38 p.m. Oct 09 2020</span>
-                        </div>
-                    </div>
-                    <p class="mt-3">McDonald's french fries are not real food.<br>
-                        Just found one under my car seat from two months ago and it looked perfect.<br>
-                        Tasted fine, too.
-                    </p>
-                    <img src="https://via.placeholder.com/500x300" class="img-fluid rounded mb-3" alt="Fries">
-                    <div class="d-flex justify-content-between">
-                        <span><i class="bi bi-heart text-muted"></i> 0</span>
-                        <span><i class="bi bi-chat text-muted"></i> 0</span>
-                        <span><i class="bi bi-bookmark text-muted"></i></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post with Image -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
-                        <div>
-                            <strong>Victoria Pedretti</strong> <span class="text-muted">@victoria</span> 
-                            <span class="text-muted">· 5:38 p.m. Oct 09 2020</span>
-                        </div>
-                    </div>
-                    <p class="mt-3">McDonald's french fries are not real food.<br>
-                        Just found one under my car seat from two months ago and it looked perfect.<br>
-                        Tasted fine, too.
-                    </p>
-                    <img src="https://via.placeholder.com/500x300" class="img-fluid rounded mb-3" alt="Fries">
-                    <div class="d-flex justify-content-between">
-                        <span><i class="bi bi-heart text-muted"></i> 0</span>
-                        <span><i class="bi bi-chat text-muted"></i> 0</span>
-                        <span><i class="bi bi-bookmark text-muted"></i></span>
-                    </div>
-                </div>
-            </div>
-
-            </div>
-          </main>
-      
-          <!-- Aside Content -->
-          <aside class="col-xxl-3 col-xl-3 col-lg-3 px-3 d-flex flex-column" style="background-color: black">
-            <div class="position-sticky" style="top: 20px;">
-              <div class="search-bar mb-4 mt-3">
-                <input type="text" class="form-control" placeholder="Search Network">
-              </div>
-      
-              <div class="suggestions-card card p-3">
-                <h5 class="mb-3">You might know</h5>
-                <div class="d-flex align-items-center mb-3">
-                  <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-circle me-2">
-                  <div class="flex-grow-1">
-                    <strong>Ishika Arya</strong><br><span class="text-muted">@ishikaarya</span>
-                  </div>
-                  <button class="btn btn-outline-success btn-sm">Follow</button>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
       </div>
-      
-    <style>
-        .app-container {
-          max-width: 1100px;
-          margin: 0 auto;
-          background-color: #f8f9fa;
-          box-sizing: border-box;
-          padding-left: 0 !important;
-          border-left: none !important;
-          border-right: none !important;
-          padding-right: 0 !important;
-        }
 
-        .app-container .row {
-          margin-left: 0 !important;
-          margin-right: 0 !important;
-        }
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        <ul>
+          {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
 
-        .app-container .col {
-          padding-left: 0 !important;
-          padding-right: 0 !important;
-        }
-      
-        .sidebar {
-          position: sticky;
-          top: 0; 
-          height: 100vh;
-          overflow-y: auto;
-        }
-        .main-content {
-          overflow-y: auto;
-        }
-        .vh-100 {
-          height: 100vh;
-        }
-      
-        @media (max-width: 991px) {
-          .sidebar, .main-content, aside {
-            height: auto;
-          }
-        }
-    </style>
-      
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- Main Content -->
+      <main class="col-xxl-7 col-xl-6 col-lg-6 px-4 main-content" style="background-color: black">
+        <div class="container mt-5">
+          <h3 class="mb-4" style="color: white;">All Posts</h3>
+          <!-- Post Cards -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
+                <div>
+                  <strong>Ayush Kumar</strong> <span class="text-muted">@ayush</span>
+                  <span class="text-muted">· 6:20 p.m. Oct 09 2020</span>
+                </div>
+              </div>
+              <p class="mt-3">It's better to have loved and lost than never to have loved at all.<br> - By Alfred
+                Tennyson</p>
+            </div>
+          </div>
+
+          <!-- Another Post -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
+                <div>
+                  <strong>Ishika Arya</strong> <span class="text-muted">@ishikaarya</span>
+                  <span class="text-muted">· 6:01 p.m. Oct 09 2020</span>
+                </div>
+              </div>
+              <p class="mt-3">I'm a lazy texter 😬, unless you are my baby 😍 or my bestfriend 😂</p>
+              <div class="d-flex justify-content-between">
+                <a href="#" class="like-button">
+                  <span style="text-decoration: none;"><i class="bi bi-heart text-muted"></i>1</span>
+                </a>
+
+                <span><i class="bi bi-chat text-muted"></i> 0</span>
+                <span><i class="bi bi-bookmark text-muted"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post with Image -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
+                <div>
+                  <strong>Victoria Pedretti</strong> <span class="text-muted">@victoria</span>
+                  <span class="text-muted">· 5:38 p.m. Oct 09 2020</span>
+                </div>
+              </div>
+              <p class="mt-3">McDonald's french fries are not real food.<br>
+                Just found one under my car seat from two months ago and it looked perfect.<br>
+                Tasted fine, too.
+              </p>
+              <img src="https://via.placeholder.com/500x300" class="img-fluid rounded mb-3" alt="Fries">
+              <div class="d-flex justify-content-between">
+                <span><i class="bi bi-heart text-muted"></i> 0</span>
+                <span><i class="bi bi-chat text-muted"></i> 0</span>
+                <span><i class="bi bi-bookmark text-muted"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post with Image -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
+                <div>
+                  <strong>Victoria Pedretti</strong> <span class="text-muted">@victoria</span>
+                  <span class="text-muted">· 5:38 p.m. Oct 09 2020</span>
+                </div>
+              </div>
+              <p class="mt-3">McDonald's french fries are not real food.<br>
+                Just found one under my car seat from two months ago and it looked perfect.<br>
+                Tasted fine, too.
+              </p>
+              <img src="https://via.placeholder.com/500x300" class="img-fluid rounded mb-3" alt="Fries">
+              <div class="d-flex justify-content-between">
+                <span><i class="bi bi-heart text-muted"></i> 0</span>
+                <span><i class="bi bi-chat text-muted"></i> 0</span>
+                <span><i class="bi bi-bookmark text-muted"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post with Image -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <img src="https://via.placeholder.com/50" alt="User" class="rounded-circle me-3">
+                <div>
+                  <strong>Victoria Pedretti</strong> <span class="text-muted">@victoria</span>
+                  <span class="text-muted">· 5:38 p.m. Oct 09 2020</span>
+                </div>
+              </div>
+              <p class="mt-3">McDonald's french fries are not real food.<br>
+                Just found one under my car seat from two months ago and it looked perfect.<br>
+                Tasted fine, too.
+              </p>
+              <img src="https://via.placeholder.com/500x300" class="img-fluid rounded mb-3" alt="Fries">
+              <div class="d-flex justify-content-between">
+                <span><i class="bi bi-heart text-muted"></i> 0</span>
+                <span><i class="bi bi-chat text-muted"></i> 0</span>
+                <span><i class="bi bi-bookmark text-muted"></i></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <!-- Aside Content -->
+      <aside class="col-xxl-3 col-xl-3 col-lg-3 px-3 d-flex flex-column" style="background-color: black">
+        <div class="position-sticky" style="top: 20px;">
+          <div class="search-bar mb-4 mt-3">
+            <input type="text" class="form-control" placeholder="Search Network">
+          </div>
+
+          <div class="suggestions-card card p-3">
+            <h5 class="mb-3">You might know</h5>
+            <ul class="list-unstyled">
+              {% for profile in recommendations %}
+              <li class="d-flex align-items-center mb-3">
+                <img src="{{ profile.avatar.url }}" class="rounded-circle" alt="{{ profile.user.username }}" width="40"
+                  height="40">
+                <div class="ms-2" >
+                  <a href="{% url 'profile' profile.user.username %}" style="text-decoration: none; color:black;">
+                    {{ profile.user.username }}
+                  </a>
+                </div>
+                <form method="post" action="">
+                  {% csrf_token %}
+                  <button class="btn btn-outline-dark ms-2">Follow</button>
+                </form>
+              </li>
+              {% empty %}
+              <p>No recommendations available.</p>
+              {% endfor %}
+            </ul>
+
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <style>
+    .app-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background-color: #f8f9fa;
+      box-sizing: border-box;
+      padding-left: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
+      padding-right: 0 !important;
+    }
+
+    .app-container .row {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    .app-container .col {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .main-content {
+      overflow-y: auto;
+    }
+
+    .vh-100 {
+      height: 100vh;
+    }
+
+    @media (max-width: 991px) {
+
+      .sidebar,
+      .main-content,
+      aside {
+        height: auto;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>
 
 {% endblock %}

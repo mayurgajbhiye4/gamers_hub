@@ -1,4 +1,4 @@
-from django.shortcuts import render,  redirect, get_object_or_404
+from django.shortcuts import render,  redirect, get_object_or_404, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from .models import Post, Comment
 from .forms import signupForm
@@ -7,11 +7,15 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.db.models import Q
+from django.urls import reverse
 
 @login_required(login_url='/login/')
 def home(request):
     posts = Post.objects.all().order_by('-timestamp')
-    return render(request, 'home.html', {'posts': posts})
+    recommendations = get_profile_recommendations(request.user)
+
+    return render(request, 'home.html', {'posts': posts,  'recommendations': recommendations})
 
 def signUp(request):
     if request.method == "POST":    
@@ -64,6 +68,7 @@ def unfollow_user(request, user_id):
 def profile(request, username):
     # Fetch the user profile based on the provided username
     user = get_object_or_404(User, username=username)
+    user_profile = user.userprofile
 
     # Fetch the user's posts, ordered by the latest first
     posts = Post.objects.filter(author=user).order_by('-timestamp')
@@ -74,6 +79,7 @@ def profile(request, username):
     # Context to pass to the template
     context = {
         'profile_user': user,
+        'user_profile': user_profile,
         'first_name': user.first_name,
         'last_name': user.last_name,
         'posts': posts,
@@ -183,3 +189,48 @@ def view_post(request, post_id):
     post.views_count = models.F('views_count') + 1  # Increment views
     post.save(update_fields=['views_count'])
     return redirect('post_detail', post_id=post_id)
+
+
+def get_profile_recommendations(user, limit=3):
+   
+    # Get the user's UserProfile instance   
+    user_profile = user.userprofile
+
+    # Exclude the profiles the user is already following and the user's own profile
+    recommendations = UserProfile.objects.exclude(Q(followers=user_profile) | Q(user=user)
+    ).order_by('?')[:limit]
+
+    return recommendations
+
+
+@login_required
+def bookmark_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    user_profile  = request.user.userprofile
+    
+    # Toggle bookmark
+    if post in user_profile.bookmarks.all():
+        user_profile.bookmarks.remove(post)
+    else:
+        user_profile.bookmarks.add(post)
+    
+    return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
+
+
+@login_required
+def view_bookmarks(request):
+    profile = request.user.userprofile
+    bookmarks = profile.bookmarks.all()  # Fetch all bookmarked posts
+
+    return render(request, 'view_bookmarks.html', {'bookmarks': bookmarks})
+
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # Check if the post is already bookmarked by the user
+    is_bookmarked = post in request.user.userprofile.bookmarks.all()
+
+    return render(request, 'post_detail.html', {
+        'post': post,
+        'is_bookmarked': is_bookmarked,
+    })

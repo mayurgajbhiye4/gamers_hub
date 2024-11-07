@@ -59,17 +59,21 @@
       <!-- Sidebar -->
       <div class="col-md-3 sidebar" style="background-color: hsl(180, 5%, 89%)">
         <div class="d-flex flex-column align-items-center py-4">
-          <img src="{{ request.user.userprofile.avatar.url }}" alt="User Avatar" class="profile-pic mb-3">
-          <h5>@{{ request.user.username }}</h5>
+          <img src="{{ user_profile.avatar.url }}" alt="User Avatar" class="profile-pic mb-3">
+          <h5>@{{ profile_user.username }}</h5>
         </div>
         <div class="list-group list-group-flush">
           <a href="{% url 'home' %}">🏠 Home</a>
           <a href="{% url 'followers' %}">🐻‍❄️ Followers</a>
           <a href="{% url 'following' %}">👽 Following</a>  
-          <a href="#">💻 Bookmarks</a>  
+          {% if is_own_profile %}
+          <a href="{% url 'view_bookmarks' %}">💻 Bookmarks</a>  
+          {% endif %}
         </div>
         <div class="mt-auto p-4">
+          {% if is_own_profile %}
           <button class="btn btn-create-post w-100" data-bs-toggle="modal" data-bs-target="#createPostModal">Create New Post</button>
+          {% endif %}
         </div>
       </div>
 
@@ -117,12 +121,15 @@
       <div class="col-md-9">
         <div class="py-4 px-5">
           <div class="d-flex align-items-center">
-            <img src="{{ request.user.userprofile.avatar.url }}" class="profile-pic me-4" alt="Profile Picture">
-            <div>
+            <img src="{{ user_profile.avatar.url }}" class="profile-pic me-4" alt="Profile Picture">
+            <div> 
               <h3>{{ first_name }} {{ last_name }}</h3>
-              <p>@{{ request.user.username }}</p>
-              <h6>{{ request.user.userprofile.bio }}</h6>
+              <p>@{{ profile_user.username }}</p>
+              <h6>{{ user_profile.bio }}</h6>
+              {% if is_own_profile %}
               <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#editProfileModal"">Edit Profile</button>
+              {% endif %}
+
             </div>
           </div>
 
@@ -201,6 +208,13 @@
                                     <span class="text-muted">{{ post.timestamp|timesince }} ago  
                                         📈{{ post.views_count }}     
                                     </span>
+                                    <a href="{% url 'bookmark_post' post.id %}" class="bookmark-btn">
+                                      {% if post in request.user.userprofile.bookmarks.all %}
+                                          Unbookmark
+                                      {% else %}
+                                          Bookmark
+                                      {% endif %}
+                                    </a>
                                     <!-- <button onclick="likePost({ post_id })">
                                       Like ({{ post.likes.count }})
                                     </button> -->

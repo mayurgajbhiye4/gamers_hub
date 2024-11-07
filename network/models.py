@@ -2,18 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User, Group, Permission
 
 # Create your models here.
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
-    bio = models.TextField(blank=True, null=True)
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
-
-    # Many-to-many relationship for following system
-    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
-
-    def __str__(self):
-        return self.user.username 
-
-
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField(max_length=1000, blank=True, null=True)
@@ -24,6 +12,20 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.author.username} - {self.text[:30]}" 
+    
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
+    bio = models.TextField(blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
+
+    # Many-to-many relationship for following system
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
+    bookmarks = models.ManyToManyField(Post, related_name="bookmarked_by", blank=True)
+
+    def __str__(self):
+        return self.user.username 
+
     
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
