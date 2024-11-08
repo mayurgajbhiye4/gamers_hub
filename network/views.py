@@ -86,7 +86,7 @@ def profile(request, username):
         'is_own_profile': is_own_profile,
     }
 
-    return render(request, 'profile.html', context)
+    return render(request, 'player.html', context)
 
 def validate_file_size(file, max_size):
     if file.size > max_size:
