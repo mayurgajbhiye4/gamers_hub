@@ -97,7 +97,84 @@
       <!-- Main Content -->
       <main class="col-xxl-7 col-xl-6 col-lg-6 px-4 main-content" style="background-color: black">
         <div class="container mt-5">
-          <h3 class="mb-4" style="color: white;">Your Posts</h3>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ user_profile.avatar.url }}" class="rounded-circle" alt="Profile Picture" width="180"
+                        height="180">
+                    <div>
+                    <div> 
+                        <h3>{{ first_name }} {{ last_name }}</h3>
+                        <p>@{{ profile_user.username }}</p>
+                        <h6>{{ user_profile.bio }}</h6>
+                        {% if is_own_profile %}
+                        <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#editProfileModal"">Edit Profile</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+             <!-- Edit Profile Modal Structure -->
+          <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                           <!-- First Name Field -->
+                            <div class="mb-3">
+                              <label for="first_name" class="form-label">First Name</label>
+                              <input type="text" class="form-control" id="first_name" name="first_name" value="{{ first_name }}">
+                            </div>
+                            
+                            <!-- Last Name Field -->
+                            <div class="mb-3">
+                              <label for="last_name" class="form-label">Last Name</label>
+                              <input type="text" class="form-control" id="last_name" name="last_name" value="{{ last_name }}">
+                            </div>
+
+                            <!-- Bio Field -->
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea class="form-control" id="bio" name="bio" rows="3">{{ request.user.userprofile.bio }}</textarea>
+                            </div>
+
+                            <!-- Avatar Upload Field -->
+                            <div class="mb-3">
+                                <label for="avatar" class="form-label">Avatar</label>
+                                <input type="file" class="form-control" id="avatar" name="avatar">
+                                {% if request.user.userprofile.avatar.url %}
+                                    <img src="{{ user_profile.avatar.url }}" alt="Current Avatar" class="mt-2" width="50">
+                                {% endif %}
+                            </div>
+
+                            <!-- Following List -->
+                            <div class="mb-3">
+                                <label for="following" class="form-label">Following</label>
+                                <select multiple class="form-control" id="following" name="following">
+                                    {% for user in all_users %}
+                                        <option value="{{ user.id }}" {% if user in user_profile.following.all %}selected{% endif %}>
+                                            {{ request.user.all_users.username }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple users.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+          </div>
+            
+          <h3 class="mb-4 mt-3" style="color: hsl(0, 0%, 0%);">Your Posts</h3>
           <!-- Post Cards -->
           <div class="card mb-4">
             <div class="card-body">
