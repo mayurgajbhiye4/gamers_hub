@@ -48,3 +48,11 @@ class FriendRequest(models.Model):
 
     def __str__(self):
         return f"{self.from_user.username} → {self.to_user.username}"
+    
+
+class Follower(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers")
+    follower_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following")
+
+    def get_profile_picture(self):
+        return self.follower_user.profile_picture.url  # Accesses the follower’s profile picture

@@ -42,21 +42,21 @@ def following(request):
     })
 
 @login_required
-def followers(request):
-    user_profile = request.user.userprofile
-
+def followers(request, username):
+    user = User.objects.get(username=username)
     # Get all users following the current user
-    followers = user_profile.followers.all()
-
-    return render(request, 'followers.html', {
-        'followers': followers
-    })
+    followers = user.followers.all()
+    return render(request, 'followers.html', {'followers': followers})
 
 @login_required
-def follow_user(request, user_id):
-    to_follow = get_object_or_404(User, id=user_id)
-    request.user.userprofile.following.add(to_follow.userprofile)  # Add to following list
-    return redirect('profile', user_id=user_id)  # Redirect to the user's profile
+def follow_user(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    if profile_user != request.user:
+        if request.user in profile_user.followers.all():
+            profile_user.followers.remove(request.user)
+        else:
+            profile_user.followers.add(request.user)
+    return redirect('profile', username=username)
 
 @login_required
 def unfollow_user(request, user_id):
@@ -76,6 +76,7 @@ def profile(request, username):
     # Check if the logged-in user is viewing their own profile
     is_own_profile = request.user == user
 
+    recommendations = get_profile_recommendations(request.user)
     # Context to pass to the template
     context = {
         'profile_user': user,
@@ -84,9 +85,10 @@ def profile(request, username):
         'last_name': user.last_name,
         'posts': posts,
         'is_own_profile': is_own_profile,
+        'recommendations': recommendations
     }
 
-    return render(request, 'player.html', context)
+    return render(request, 'profile.html', context)
 
 def validate_file_size(file, max_size):
     if file.size > max_size:
