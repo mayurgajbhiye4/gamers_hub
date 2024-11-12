@@ -31,58 +31,54 @@ def signUp(request):
     return render(request, "registration/signup.html", {'form':form})
 
 @login_required
-def following(request):
-    user_profile = request.user.userprofile
+def following(request, username):
+    user = get_object_or_404(User, username=username)
+    following = user.following_set.all()  # All users this user is following
+    return render(request, 'following.html', {'user': user, 'following': following})
 
-    # Get all users the current user is following
-    following = user_profile.following.all()
+@login_required 
+def followers(request, username):   
+    user  = get_object_or_404(User, username=username) 
+    profile_owner  = get_object_or_404(UserProfile, user=user)
+    followers = Follower.objects.filter(followed_user=user)  
 
-    return render(request, 'following.html', {
-        'following': following,
-    })
+    followers_profiles = [f.user for f in followers]
 
-@login_required
-def followers(request, username):
-    user = User.objects.get(username=username)
-    # Get all users following the current user
-    followers = user.followers.all()
-    return render(request, 'followers.html', {'followers': followers})
+    return render(request, 'followers.html', {'profile_owner':profile_owner, 'followers': followers_profiles})
+
 
 @login_required
 def follow_user(request, username):
-    profile_user = get_object_or_404(User, username=username)
-    if profile_user != request.user:
-        if request.user in profile_user.followers.all():
-            profile_user.followers.remove(request.user)
-        else:
-            profile_user.followers.add(request.user)
+    user_to_follow = get_object_or_404(User, username=username)
+    Following.objects.get_or_create(follower=request.user, following=user_to_follow)
     return redirect('profile', username=username)
 
+
 @login_required
-def unfollow_user(request, user_id):
-    to_unfollow = get_object_or_404(User, id=user_id)
-    request.user.userprofile.following.remove(to_unfollow.userprofile)  # Remove from following list
-    return redirect('profile', user_id=user_id)  # Redirect to the user's profile
+def unfollow_user(request, username):
+    user_to_unfollow = get_object_or_404(User, username=username)
+    Following.objects.filter(follower=request.user, following=user_to_unfollow).delete()
+    return redirect('profile', username=username)
 
 
 def profile(request, username):
     # Fetch the user profile based on the provided username
-    user = get_object_or_404(User, username=username)
-    user_profile = user.userprofile
+    profile_owner  = get_object_or_404(User, username=username)
+    user_profile = UserProfile.objects.get(user=profile_owner)
 
     # Fetch the user's posts, ordered by the latest first
-    posts = Post.objects.filter(author=user).order_by('-timestamp')
+    posts = Post.objects.filter(author=profile_owner).order_by('-timestamp')
 
     # Check if the logged-in user is viewing their own profile
-    is_own_profile = request.user == user
+    is_own_profile = request.user == profile_owner
 
     recommendations = get_profile_recommendations(request.user)
     # Context to pass to the template
     context = {
-        'profile_user': user,
+        'profile_owner': profile_owner,
         'user_profile': user_profile,
-        'first_name': user.first_name,
-        'last_name': user.last_name,
+        'first_name': profile_owner.first_name,
+        'last_name': profile_owner.last_name,
         'posts': posts,
         'is_own_profile': is_own_profile,
         'recommendations': recommendations

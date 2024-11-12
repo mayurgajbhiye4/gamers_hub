@@ -5,5 +5,5 @@ class NetworkConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'network'
 
-def ready(self):
-    import network.signals
+    def ready(self):
+        import network.signals

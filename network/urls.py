@@ -7,11 +7,14 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('signup/', views.signUp, name='signup'),
     path('', include('django.contrib.auth.urls')),
-    path('follow/<str:username>/', views.follow_user, name='follow_user'),
-    path('unfollow/<int:user_id>/', views.unfollow_user, name='unfollow_user'),
-    path('following/', views.following, name='following'),  
-    path('followers/<str:username>/', views.followers, name='followers'),  
+
     path('profile/<str:username>/', views.profile, name='profile'),
+    path('profile/<str:username>/followers/', views.followers, name='followers'),
+    path('profile/<str:username>/following/', views.following, name='following'),
+    
+    path('follow/<str:username>/', views.follow_user, name='follow'),
+    path('unfollow/<str:username>/', views.unfollow_user, name='unfollow'),
+    
     path('create_post/', views.create_post, name='create_post'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
 

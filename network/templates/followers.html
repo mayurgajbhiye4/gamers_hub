@@ -15,7 +15,7 @@
         <div class="list-group">
             {% for follower in followers %}
                 <a href="#" class="list-group-item list-group-item-action">
-                    <img src="{{ follower.profile_picture.url }}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
+                    <img src="{{ follower.userprofile.avatar.url }}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
                     {{ follower.username }}
                 </a>    
             {% empty %}

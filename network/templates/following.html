@@ -13,10 +13,10 @@
         <a href="{% url 'profile' request.user.username %}">Go Back</a>
         <h1 class="text-center">Following</h1>
         <div class="list-group">
-            {% for user in following %}
-                <a href="#" class="list-group-item list-group-item-action">
-                    <img src="{{ user.avatar.url }}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
-                    {{ user.user.username }}
+            {% for following in following %}
+                <a href="{% url 'profile' following.following.username %}" class="list-group-item list-group-item-action">
+                    <img src="{{ following.following.userprofile.avatar.url }}" class="rounded-circle me-2" alt="Avatar" width="40" height="40">
+                    {{ following.following.username }}
                 </a>
             {% empty %}
                 <p class="text-center">You are not following anyone yet.</p>

@@ -5,4 +5,11 @@ from .models import *
 admin.site.register(UserProfile)
 admin.site.register(Post)
 admin.site.register(Comment)
-admin.site.register(FriendRequest)
+admin.site.register(Following)
+
+class FollowerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'followed_user', 'created_at')
+    search_fields = ('user__username', 'followed_user__username')
+    list_filter = ('created_at',)
+
+admin.site.register(Follower, FollowerAdmin)
