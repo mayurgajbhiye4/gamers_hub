@@ -3,25 +3,25 @@
 <h2>Your Bookmarked Posts</h2>
 <div class="bookmarks-container">
     {% for post in bookmarks %}
-        <div class="bookmark">
-            <h3>{{ post.author.username }}</h3>
-            <p>{{ post.text }}</p>
-            {% if post.image %}
-                <img src="{{ post.image.url }}" alt="Post image">
+    <div class="bookmark">
+        <h3>{{ post.author.username }}</h3>
+        <p>{{ post.text }}</p>
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="Post image">
+        {% endif %}
+        {% if post.video %}
+        <video controls>
+            <source src="{{ post.video.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        {% endif %}
+        <a href="{% url 'bookmark_post' post.id %}">
+            {% if post in request.user.userprofile.bookmarks.all %}
+            Unbookmark
+            {% else %}
+            Bookmark
             {% endif %}
-            {% if post.video %}
-                <video controls>
-                    <source src="{{ post.video.url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            {% endif %}
-            <a href="{% url 'bookmark_post' post.id %}">
-                {% if post in request.user.userprofile.bookmarks.all %}
-                    Unbookmark
-                {% else %}
-                    Bookmark
-                {% endif %}
-            </a>
-        </div>
+        </a>
+    </div>
     {% endfor %}
 </div>

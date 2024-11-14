@@ -9,10 +9,12 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.db.models import Q
 from django.urls import reverse
+import random
 
 @login_required(login_url='/login/')
 def home(request):
-    posts = Post.objects.all().order_by('-timestamp')
+    posts = list(Post.objects.all())
+    random.shuffle(posts)
     recommendations = get_profile_recommendations(request.user)
 
     return render(request, 'home.html', {'posts': posts,  'recommendations': recommendations})
@@ -180,7 +182,6 @@ def comment_post(request, post_id):
         comment = Comment.objects.create(user=request.user, post=post, text=text)
         return redirect('post_detail', post_id=post_id)
     
-    
 @login_required
 def view_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -204,14 +205,21 @@ def get_profile_recommendations(user, limit=3):
 @login_required
 def bookmark_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    user_profile  = request.user.userprofile
-    
+    user_profile = request.user.userprofile
+    bookmarked = False
+
     # Toggle bookmark
     if post in user_profile.bookmarks.all():
         user_profile.bookmarks.remove(post)
     else:
         user_profile.bookmarks.add(post)
+        bookmarked = True
+
+    # Check if the request is AJAX; if so, return JSON response
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({'bookmarked': bookmarked})
     
+    # Fallback in case it's not an AJAX request
     return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
 
 
