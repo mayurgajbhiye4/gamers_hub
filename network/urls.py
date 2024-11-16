@@ -24,6 +24,7 @@ urlpatterns = [
 
     path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark_post'),
     path('bookmarks/', views.view_bookmarks, name='view_bookmarks'),
+    path('unbookmark/<int:post_id>/', views.unbookmark_post, name='unbookmark_post'),
 
     path('post/<int:post_id>/', views.post_detail, name='post_detail'),
 ]

@@ -230,6 +230,19 @@ def view_bookmarks(request):
 
     return render(request, 'view_bookmarks.html', {'bookmarks': bookmarks})
 
+
+@login_required
+def unbookmark_post(request, post_id):
+    if request.method == 'POST':
+        try:
+            post = Post.objects.get(id=post_id)
+            request.user.userprofile.bookmarks.remove(post)
+            return JsonResponse({'status': 'success'})
+        except Post.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Post not found'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
