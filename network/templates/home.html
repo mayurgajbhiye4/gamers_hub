@@ -28,9 +28,9 @@
             <strong>@{{ request.user.username }}</strong>
           </a>
           <ul class="nav flex-column mt-4">
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                   <a class="nav-link text-white" href="{% url 'home' %}"><i class="bi bi-house-door me-2"></i>Home</a>
-                </li> -->
+            </li>
             <li class="nav-item">
               <a class="nav-link text-white" href="#"><i class="bi bi-bell me-2"></i>Notifications</a>
             </li>
@@ -88,59 +88,92 @@
         <div class="container mt-5">
           <h3 class="mb-4" style="color: white;">Home Feed</h3>
           <!-- Post Cards -->
-          {% for post in posts %}
+          {% if selected_post %}
+          <!-- Display Selected Post with Comments -->
           <div class="card mb-4">
             <div class="card-body">
               <div class="d-flex align-items-center">
-                <img src="{{ post.author.userprofile.avatar.url }}" alt="User" class="rounded-circle me-3" width="40"
-                height="40">
+                <img src="{{ selected_post.author.userprofile.avatar.url }}" alt="User" class="rounded-circle me-3" width="40"
+                  height="40">
                 <div>
-                  <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong> <span class="text-muted">@{{ post.author.username }}</span>
-                  <span class="text-muted">{{ post.timestamp|timesince }} ago</span>
-                  <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}" data-post-id="{{ post.id }}">
-                    {% if post in user_profile.bookmarks.all %}
-                    Unbookmark
-                    {% else %}
-                    Bookmark
-                    {% endif %}
-                  </button>
-                </div>  
+                  <strong>{{ selected_post.author.first_name }} {{ selected_post.author.last_name }}</strong>
+                  <span class="text-muted">@{{ selected_post.author.username }}</span>
+                  <span class="text-muted">{{ selected_post.timestamp|timesince }} ago
+                    <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}" data-post-id="{{ post.id }}">
+                      {% if post in user_profile.bookmarks.all %}
+                      Unbookmark
+                      {% else %}
+                      Bookmark
+                      {% endif %}
+                    </button>
+                  </span>
+                </div>
               </div>
-              <p class="mt-3">{{ post.text }}</p>
-              {% if post.image %}
-                <img src="{{ post.image.url }}" class="rounded float-right" style="max-width: 100%" alt="Post Image">
+              <p class="mt-3">{{ selected_post.text }}</p>
+              {% if selected_post.image %}
+              <img src="{{ selected_post.image.url }}" class="rounded" style="max-width: 100%;" alt="Post Image">
               {% endif %}
-              {% if post.gif %}
-                <img src="{{ post.gif.url }}" class="rounded float-right" style="max-width: 100%;" alt="GIF">
-              {% endif %}
-              {% if post.video %}
+              {% if selected_post.video %}
               <video width="500" height="300" controls autoplay muted>
-                <source src="{{ post.video.url }}" type="video/mp4">
-                Your browser does not support the video tag.
+                <source src="{{ selected_post.video.url }}" type="video/mp4">
               </video>
               {% endif %}
-              {% if post.emoji %}
-              <span>{{ post.emoji }}</span>
+              {% if selected_post.emoji %}
+                <span>{{ selected_post.emoji }}</span>
               {% endif %}
 
+              <!-- Comments Section -->
+                <div class="mt-3">
+                  <h6>Comments</h6>
+                  <ul class="list-group">
+                    {% for comment in selected_post.comments.all %}
+                    <li class="list-group-item">{{ comment.author.username }}: {{ comment.text }}</li>
+                    {% empty %}
+                    <li class="list-group-item">No comments yet.</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                
+              <!-- Back Button -->
+                <a href="{% url 'home' %}" class="btn btn-secondary mt-3">Back to Feed</a>
+                </div>
+                </div>
+              
+              {% else %}
+                <!-- Display Home Feed with All Posts -->
+                {% for post in posts %}
+                <div class="card mb-4" onclick="openPostDetail( '{{ post.id }}' )">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center" style="cursor: pointer;">
+                      <img src="{{ post.author.userprofile.avatar.url }}" alt="User" class="rounded-circle me-3" width="40" height="40">
+                      <div>
+                        <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong>
+                        <span class="text-muted">@{{ post.author.username }}</span>
+                        <span class="text-muted">{{ post.timestamp|timesince }} ago
+                          <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}" data-post-id="{{ post.id }}">
+                            {% if post in user_profile.bookmarks.all %}
+                            Unbookmark
+                            {% else %}
+                            Bookmark
+                            {% endif %}
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                    <p class="mt-3">{{ post.text }}</p>
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" class="rounded" style="max-width: 90%;" alt="Post Image">
+                    {% endif %}
+                    {% if post.video %}
+                    <video width="500" height="300" controls autoplay muted>
+                      <source src="{{ post.video.url }}" type="video/mp4">
+                    </video>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+                {% endif %}
             </div>
-          </div>
-
-          <!-- <div class="comment-section">
-            <h4 style="color: white;">Comments</h4>
-            <div class="comments-list">
-              {% for comment in post.comments.all %}
-              <div class="comment" style="color: white;">
-                <span class="comment-author">{{ comment.author.username }}</span>:
-                <span class="comment-text">{{ comment.text }}</span>
-              </div>
-            </div>
-            {% empty %}
-            <p style="color: hsl(0, 0%, 100%)">No comments yet.</p>
-            {% endfor %} -->
-
-          {% endfor %}
-        </div>
       </main>
 
       <!-- Aside Content -->
@@ -262,6 +295,13 @@
         });
       });
     </script>
+
+    <script>
+      function openPostDetail(postId) {
+        window.location.href = `{% url 'post_detail' 0 %}`.replace(0, postId);
+      }
+    </script>
+
 
 </body>
 </html>

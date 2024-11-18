@@ -100,7 +100,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <img src="{{ user_profile.avatar.url }}" class="rounded-circle" alt="Profile Picture" width="180"
+                        <img src="{{ user_profile.avatar.url }}" class="rounded-circle me-3" alt="Profile Picture" width="180"
                         height="180">
                     <div>
                     <div> 
@@ -256,7 +256,7 @@
                   {% if request.user in profile.user.followers.all %}
                       <button class="btn btn-outline-dark ms-2">Unfollow</button>
                   {% else %}
-                      <button type="submit" class="btn btn-outline-primary">Follow</button>
+                      <button type="submit" class="btn btn-outline-dark ms-2">Follow</button>
                   {% endif %}
                 </form>
                 {% endif %}

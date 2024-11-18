@@ -13,8 +13,7 @@ import random
 
 @login_required(login_url='/login/')
 def home(request):
-    posts = list(Post.objects.all())
-    random.shuffle(posts)
+    posts = list(Post.objects.all().order_by('-timestamp'))
     recommendations = get_profile_recommendations(request.user)
 
     return render(request, 'home.html', {'posts': posts,  'recommendations': recommendations})
@@ -124,6 +123,9 @@ def create_post(request):
 
     return render(request, 'create_post.html')
 
+def post_detail(request, post_id):
+    selected_post = get_object_or_404(Post, id=post_id)  # Load only the selected post
+    return render(request, 'home.html', {'selected_post': selected_post})
 
 @login_required 
 def edit_profile(request):
@@ -219,9 +221,6 @@ def bookmark_post(request, post_id):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse({'bookmarked': bookmarked})
     
-    # Fallback in case it's not an AJAX request
-    return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
-
 
 @login_required
 def view_bookmarks(request):
@@ -243,13 +242,3 @@ def unbookmark_post(request, post_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
 
-def post_detail(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-
-    # Check if the post is already bookmarked by the user
-    is_bookmarked = post in request.user.userprofile.bookmarks.all()
-
-    return render(request, 'post_detail.html', {
-        'post': post,
-        'is_bookmarked': is_bookmarked,
-    })
