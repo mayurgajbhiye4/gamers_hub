@@ -17,10 +17,12 @@ urlpatterns = [
     
     path('create_post/', views.create_post, name='create_post'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
-     path('post/<int:post_id>/', views.post_detail, name='post_detail'),
+    path('post/<int:post_id>/', views.post_detail, name='post_detail'),
+
+    path('fetch-new-posts/', views.fetch_new_posts, name='fetch_new_posts'),
 
     path('like/<int:post_id>/', views.like_post, name='like_post'),
-    path('comment/<int:post_id>/', views.comment_post, name='comment_post'),
+    path('post/<int:post_id>/add_comment/', views.add_comment, name="add_comment"),
 
     path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark_post'),
     path('bookmarks/', views.view_bookmarks, name='view_bookmarks'),

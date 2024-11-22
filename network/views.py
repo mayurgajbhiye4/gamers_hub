@@ -1,5 +1,5 @@
 from django.shortcuts import render,  redirect, get_object_or_404, HttpResponseRedirect
-from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponseBadRequest
 from .models import Post, Comment
 from .forms import signupForm
 from django.contrib import messages
@@ -8,8 +8,10 @@ from .models import *
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.db.models import Q
-from django.urls import reverse
-import random
+from django.utils import timezone
+from django.core import serializers
+from django.utils.timezone import localtime
+
 
 @login_required(login_url='/login/')
 def home(request):
@@ -125,7 +127,12 @@ def create_post(request):
 
 def post_detail(request, post_id):
     selected_post = get_object_or_404(Post, id=post_id)  # Load only the selected post
-    return render(request, 'home.html', {'selected_post': selected_post})
+    return render(request, 'home.html', {'selected_post': selected_post, 'post_id':post_id})
+
+def fetch_new_posts(request):
+    latest_posts = Post.objects.filter(timestamp__gte=timezone.now() - timezone.timedelta(minutes=5))
+    posts_json = serializers.serialize('json', latest_posts)
+    return JsonResponse(posts_json, safe=False)
 
 @login_required 
 def edit_profile(request):
@@ -176,14 +183,33 @@ def like_post(request, post_id):
         like.delete()  # Toggle like
     return JsonResponse({'likes_count': post.likes.count()})
 
+
 @login_required
-def comment_post(request, post_id):
-    if request.method == 'POST':
+def add_comment(request, post_id):
+    if request.method == "POST":
         post = get_object_or_404(Post, id=post_id)
-        text = request.POST.get('text')
-        comment = Comment.objects.create(user=request.user, post=post, text=text)
-        return redirect('post_detail', post_id=post_id)
-    
+        text = request.POST.get("text")
+        if not text:
+            return JsonResponse({"error": "Content cannot be empty"}, status=400)
+
+        comment = Comment.objects.create(
+            post=post,
+            user=request.user,
+            text=text
+        )
+
+        # Return necessary data for dynamically updating the comment section
+        return JsonResponse({
+            "success": True,
+            "text": comment.text,
+            "user": f"{request.user.first_name} {request.user.last_name}",
+            "username": request.user.username,
+            "timestamp": localtime(comment.timestamp).strftime("%Y-%m-%d %H:%M"),
+        })
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+  
 @login_required
 def view_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -206,20 +232,22 @@ def get_profile_recommendations(user, limit=3):
 
 @login_required
 def bookmark_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    user_profile = request.user.userprofile
-    bookmarked = False
+    if request.method == "POST":
+        post = get_object_or_404(Post, id=post_id)
+        user_profile = request.user.userprofile
+        bookmarked = False
 
-    # Toggle bookmark
-    if post in user_profile.bookmarks.all():
-        user_profile.bookmarks.remove(post)
-    else:
-        user_profile.bookmarks.add(post)
-        bookmarked = True
+        # Toggle bookmark
+        if post in user_profile.bookmarks.all():
+            user_profile.bookmarks.remove(post)
+        else:
+            user_profile.bookmarks.add(post)
+            bookmarked = True
 
-    # Check if the request is AJAX; if so, return JSON response
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        # Return JSON response for AJAX
         return JsonResponse({'bookmarked': bookmarked})
+    
+    return HttpResponseBadRequest("Invalid request")
     
 
 @login_required

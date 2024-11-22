@@ -34,6 +34,9 @@
             <li class="nav-item">
               <a class="nav-link text-white" href="#"><i class="bi bi-bell me-2"></i>Notifications</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="{% url 'view_bookmarks' %}"><i class="bi bi-save2 me-2"></i>Bookmarks</a>
+            </li>
           </ul>
           <button class="btn btn-outline-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
             Create Post
@@ -99,13 +102,6 @@
                   <strong>{{ selected_post.author.first_name }} {{ selected_post.author.last_name }}</strong>
                   <span class="text-muted">@{{ selected_post.author.username }}</span>
                   <span class="text-muted">{{ selected_post.timestamp|timesince }} ago
-                    <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}" data-post-id="{{ post.id }}">
-                      {% if post in user_profile.bookmarks.all %}
-                      Unbookmark
-                      {% else %}
-                      Bookmark
-                      {% endif %}
-                    </button>
                   </span>
                 </div>
               </div>
@@ -122,18 +118,40 @@
                 <span>{{ selected_post.emoji }}</span>
               {% endif %}
 
+
               <!-- Comments Section -->
-                <div class="mt-3">
-                  <h6>Comments</h6>
-                  <ul class="list-group">
-                    {% for comment in selected_post.comments.all %}
-                    <li class="list-group-item">{{ comment.author.username }}: {{ comment.text }}</li>
-                    {% empty %}
-                    <li class="list-group-item">No comments yet.</li>
-                    {% endfor %}
-                  </ul>
+              <div class="mt-3">
+                <h6>Comments</h6>
+                <div id="comments-container">
+                <ul class="list-group">
+                  {% for comment in selected_post.comments.all %}
+                  <li class="list-group-item">
+                    <div class="comment mb-2">
+                      <div class="d-flex align-items-center">
+                        <a href="{% url 'profile' comment.user.username %}" style="text-decoration: none;">
+                        <strong class="text-primary me-2">{{ comment.user.first_name }} {{ comment.user.last_name }}</strong>
+                        <span class="text-muted">@{{ comment.user.username }}</span>
+                        </a>
+                      </div>
+                      <p class="mb-0">{{ comment.text }}</p>
+                    </div>
+                  </li>
+                  {% empty %}
+                  <li class="list-group-item">No comments yet.</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              </div>
+              
+              <!-- Add Comment Form -->
+              <form method="POST" id="add-comment-form" class="mt-3">
+                {% csrf_token %}
+                <div class="input-group">
+                  <input type="text" id="comment-text" name="text" class="form-control" placeholder="Write a comment..." />
+                  <button type="submit" class="btn btn-primary">Add Comment</button>
                 </div>
-                
+              </form>
+
               <!-- Back Button -->
                 <a href="{% url 'home' %}" class="btn btn-secondary mt-3">Back to Feed</a>
                 </div>
@@ -142,21 +160,14 @@
               {% else %}
                 <!-- Display Home Feed with All Posts -->
                 {% for post in posts %}
-                <div class="card mb-4" onclick="openPostDetail( '{{ post.id }}' )">
+                <div class="card mb-4" onclick="openPostDetail( '{{ post.id }}' )" style="cursor: pointer;">
                   <div class="card-body">
-                    <div class="d-flex align-items-center" style="cursor: pointer;">
+                    <div class="d-flex align-items-center">
                       <img src="{{ post.author.userprofile.avatar.url }}" alt="User" class="rounded-circle me-3" width="40" height="40">
                       <div>
                         <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong>
                         <span class="text-muted">@{{ post.author.username }}</span>
                         <span class="text-muted">{{ post.timestamp|timesince }} ago
-                          <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}" data-post-id="{{ post.id }}">
-                            {% if post in user_profile.bookmarks.all %}
-                            Unbookmark
-                            {% else %}
-                            Bookmark
-                            {% endif %}
-                          </button>
                         </span>
                       </div>
                     </div>
@@ -296,10 +307,84 @@
       });
     </script>
 
+        
     <script>
       function openPostDetail(postId) {
         window.location.href = `{% url 'post_detail' 0 %}`.replace(0, postId);
       }
+    </script>
+
+    <script>
+      function fetchNewPosts() {
+        fetch("/fetch-new-posts/")
+          .then(response => response.json())
+          .then(posts => {
+            posts.forEach(post => {
+              // Assuming you have a function to append a new post to your feed
+              addPostToFeed(post);
+            });
+          })
+          .catch(error => console.error('Error fetching new posts:', error));
+      }
+
+      // Poll the server every 10 seconds
+      setInterval(fetchNewPosts, 10000);
+
+      function addPostToFeed(post) {
+        // This function should format and insert the post content into your HTML
+        const postHtml = `
+          <div class="card mb-4">
+            <div class="card-body">
+              <strong>${post.fields.author}</strong>
+              <p>${post.fields.text}</p>
+            </div>
+          </div>`;
+        document.querySelector('.feed-container').insertAdjacentHTML('afterbegin', postHtml);
+      }
+    </script>
+
+    <script>
+        document.getElementById("add-comment-form").addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent the default form submission
+            
+            const postId = "{{ post_id }}";
+            const text = document.getElementById("comment-text").value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/post/${postId}/add_comment/`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+              },
+              body: new URLSearchParams({
+                text: text,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.error) {
+                  alert(data.error);
+                } else {
+                  // Add the new comment to the comments list
+                  const commentsContainer = document.getElementById("comments-container");
+                  const newComment = `
+          <div class="card mb-2">
+            <div class="card-body">
+              <strong>${data.user}</strong> <small class="text-muted">@${data.username}</small>
+              <p>${data.text}</p>
+              <small class="text-muted">${data.timestamp}</small>
+            </div>
+          </div>
+        `;
+                  commentsContainer.insertAdjacentHTML("beforeend", newComment);
+
+                  // Clear the comment input field
+                  document.getElementById("comment-text").value = "";
+                }
+              })
+              .catch((error) => console.error("Error:", error));
+          });
     </script>
 
 

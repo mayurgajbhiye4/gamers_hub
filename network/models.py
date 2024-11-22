@@ -63,3 +63,20 @@ class Comment(models.Model):
     text = models.TextField(max_length=500)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["timestamp"]
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.post}"
+    
+    
+
+# class Notification(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications", null=True)
+#     actor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="actor", null=True)
+#     notification_type = models.CharField(max_length=50)  # e.g., "like", "comment", "follow
+#     content_object = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
+#     timestamp = models.DateTimeField(auto_now_add=True)
+#     is_read = models.BooleanField(default=False)
+
+
