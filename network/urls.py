@@ -16,12 +16,15 @@ urlpatterns = [
     path('unfollow/<str:username>/', views.unfollow_user, name='unfollow'),
     
     path('create_post/', views.create_post, name='create_post'),
+    path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
+
+
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('post/<int:post_id>/', views.post_detail, name='post_detail'),
 
     path('fetch-new-posts/', views.fetch_new_posts, name='fetch_new_posts'),
 
-    path('like/<int:post_id>/', views.like_post, name='like_post'),
+    path("post/<int:post_id>/toggle_like/", views.toggle_like, name="toggle_like"),
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add_comment"),
 
     path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark_post'),

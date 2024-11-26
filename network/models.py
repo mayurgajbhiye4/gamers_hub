@@ -9,6 +9,7 @@ class Post(models.Model):
     video = models.FileField(upload_to='videos/', blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     views_count = models.PositiveIntegerField(default=0)
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
 
     def __str__(self):
         return f"{self.author.username} - {self.text[:30]}" 
@@ -48,14 +49,6 @@ class Following(models.Model):
     def __str__(self):
         return f"{self.follower.username} follows {self.following.username}"
 
-    
-class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'post')
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default='')

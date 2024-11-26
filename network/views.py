@@ -1,5 +1,5 @@
 from django.shortcuts import render,  redirect, get_object_or_404, HttpResponseRedirect
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from .models import Post, Comment
 from .forms import signupForm
 from django.contrib import messages
@@ -17,8 +17,11 @@ from django.utils.timezone import localtime
 def home(request):
     posts = list(Post.objects.all().order_by('-timestamp'))
     recommendations = get_profile_recommendations(request.user)
-
-    return render(request, 'home.html', {'posts': posts,  'recommendations': recommendations})
+    return render(request, 'home.html', 
+                  {'posts': posts, 
+                   'recommendations': recommendations,
+                   'user_likes': {post.id: post.likes.count() for post in posts}
+                   })
 
 def signUp(request):
     if request.method == "POST":    
@@ -125,9 +128,44 @@ def create_post(request):
 
     return render(request, 'create_post.html')
 
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if post.author != request.user:
+        return HttpResponseForbidden("You do not have permission to delete this post.")
+
+    post.delete()
+    return redirect('profile', username=request.user.username) 
+
+@login_required
 def post_detail(request, post_id):
-    selected_post = get_object_or_404(Post, id=post_id)  # Load only the selected post
-    return render(request, 'home.html', {'selected_post': selected_post, 'post_id':post_id})
+    selected_post = get_object_or_404(Post, id=post_id)  # Load the selected post
+
+    if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        # Handle the toggle like functionality
+        user = request.user
+        if selected_post.likes.filter(id=user.id).exists():
+            selected_post.likes.remove(user)
+            liked = False
+        else:
+            selected_post.likes.add(user)
+            liked = True
+
+        # Return the updated likes count as JSON
+        return JsonResponse({
+            'success': True,
+            'liked': liked,
+            'likes_count': selected_post.likes.count(),
+        })
+
+    # Default case: Render the post details
+    likes_count = selected_post.likes.count()  # Count the number of likes on the post
+    return render(request, 'home.html', {
+        'selected_post': selected_post,
+        'likes_count': likes_count,
+        'post_id': post_id,
+    })
 
 def fetch_new_posts(request):
     latest_posts = Post.objects.filter(timestamp__gte=timezone.now() - timezone.timedelta(minutes=5))
@@ -175,13 +213,26 @@ def edit_profile(request):
     }
     return render(request, 'profile.html', context)
 
+
 @login_required
-def like_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    like, created = Like.objects.get_or_create(user=request.user, post=post)
-    if not created:
-        like.delete()  # Toggle like
-    return JsonResponse({'likes_count': post.likes.count()})
+def toggle_like(request, post_id):
+    if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        post = get_object_or_404(Post, id=post_id)
+        user = request.user
+
+        if user in post.likes.all():
+            post.likes.remove(user)
+            liked = False
+        else:
+            post.likes.add(user)
+            liked = True
+
+        return JsonResponse({
+            "success": True,
+            "liked": liked,
+            "like_count": post.likes.count()
+        })
+    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 
 @login_required
