@@ -1,4 +1,4 @@
-from django.shortcuts import render,  redirect, get_object_or_404, HttpResponseRedirect
+from django.shortcuts import render,  redirect, get_object_or_404
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from .models import Post, Comment
 from .forms import signupForm
@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.core import serializers
 from django.utils.timezone import localtime
+from django.urls import reverse
 
 
 @login_required(login_url='/login/')
@@ -137,6 +138,35 @@ def delete_post(request, post_id):
 
     post.delete()
     return redirect('profile', username=request.user.username) 
+
+
+@login_required
+def update_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if post.author != request.user:
+        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        post_text = request.POST.get('text', '')
+        post.image = request.FILES.get('image', post.image)
+        post.video = request.FILES.get('video', post.video)
+
+        if post_text.strip():
+            post.text = post_text
+            post.save()
+            
+            return JsonResponse({
+                'success': True,
+                'post_id': post.id,
+                'redirect_url': reverse('post_detail', args=[post.id])  # Redirect to the post detail page
+            })
+        
+        else:
+            return JsonResponse({'success': False, 'error': 'Post content cannot be empty'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
 
 @login_required
 def post_detail(request, post_id):

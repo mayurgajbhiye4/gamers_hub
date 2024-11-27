@@ -213,10 +213,17 @@
               {% endif %}
             </div>
 
+            <span>
+            <!-- Update Button -->
+            <button class="btn btn-warning btn-sm update-post-btn" data-post-id="{{ post.id }}" data-post-content="{{ post.text }}">
+              Edit
+            </button>
+
             <!-- Delete Button -->
             <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ post.id }}" style="width: 12%;">
               Delete
             </button>
+            </span>
 
             <!-- Delete Confirmation Modal -->
             <div class="modal fade" id="deleteModal{{ post.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ post.id }}"
@@ -240,6 +247,36 @@
                 </div>
               </div>
             </div>
+
+            <!-- Update Post Modal -->
+            <div class="modal fade" id="updatePostModal" tabindex="-1" aria-labelledby="updatePostModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="updatePostModalLabel">Update Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <form id="updatePostForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                      <textarea id="updatePostText" name="text" class="form-control mb-3" placeholder="Edit your post content"
+                        maxlength="1000" required></textarea>
+            
+                      <label>Change Image (Optional, Max: 20MB)</label>
+                      <input type="file" id="updatePostImage" name="image" class="form-control mb-3" accept="image/*">
+            
+                      <label>Change Video (Optional, Max: 200MB)</label>
+                      <input type="file" id="updatePostVideo" name="video" class="form-control mb-3" accept="video/*">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
 
           </div>
 
@@ -420,6 +457,64 @@
           .catch(error => console.error('Error:', error));
       }
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const updatePostModal = document.getElementById('updatePostModal');
+        const updatePostForm = document.getElementById('updatePostForm');
+        const updatePostText = document.getElementById('updatePostText');
+        const updatePostImage = document.getElementById('updatePostImage');
+        const updatePostVideo = document.getElementById('updatePostVideo');
+
+        // Open the modal and populate it with post data
+        document.querySelectorAll('.update-post-btn').forEach(button => {
+          button.addEventListener('click', function () {
+            const postId = this.dataset.postId;
+            const postContent = this.dataset.postContent;
+
+            // Populate the modal fields
+            updatePostText.value = postContent;
+            updatePostForm.setAttribute('data-post-id', postId);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(updatePostModal);
+            modal.show();
+          });
+        });
+
+        // Handle form submission
+        document.getElementById('updatePostForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const postId = form.getAttribute('data-post-id');
+        const formData = new FormData(form);
+
+        fetch(`/post/${postId}/update/`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Redirect to the provided URL
+              window.location.href = data.redirect_url;
+            } else {
+              alert(data.error || 'Failed to update the post.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+          });
+      });
+    });
+  </script>
+
 
 </body>
 </html>
