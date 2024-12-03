@@ -5,7 +5,6 @@ from .models import *
 admin.site.register(UserProfile)
 admin.site.register(Post)
 admin.site.register(Comment)
-admin.site.register(Following)
 
 class FollowerAdmin(admin.ModelAdmin):
     list_display = ('user', 'followed_user', 'created_at')

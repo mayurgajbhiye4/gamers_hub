@@ -12,7 +12,8 @@
 }
 
 .sidebar .nav-link.active {
-    color: #28a745; /* Green for active link */
+    color: #28a745;
+    /* Green for active link */
     font-weight: bold;
 }
 
@@ -24,6 +25,7 @@
     border-radius: 25px;
     font-size: 18px;
 }
+
 /* 
 .main-content {
     padding: 20px;

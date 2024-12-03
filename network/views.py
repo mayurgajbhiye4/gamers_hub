@@ -39,9 +39,19 @@ def signUp(request):
 
 @login_required
 def following(request, username):
+    # Get the user whose "following" list is to be displayed
     user = get_object_or_404(User, username=username)
-    following = user.following_set.all()  # All users this user is following
-    return render(request, 'following.html', {'user': user, 'following': following})
+
+    # Get the users this user is following 
+    following = Follower.objects.filter(user=user).select_related('followed_user')
+
+    # Extract the profiles of the users being followed
+    following_profiles = [follow.followed_user for follow in following]
+
+    return render(request, 'following.html', {
+        'user': user,
+        'following_profiles': following_profiles
+    })
 
 @login_required 
 def followers(request, username):   
@@ -49,23 +59,28 @@ def followers(request, username):
     profile_owner  = get_object_or_404(UserProfile, user=user)
     followers = Follower.objects.filter(followed_user=user)  
 
-    followers_profiles = [f.user for f in followers]
+    followers_profiles = [f.user for f in followers]    
 
     return render(request, 'followers.html', {'profile_owner':profile_owner, 'followers': followers_profiles})
 
 
 @login_required
-def follow_user(request, username):
-    user_to_follow = get_object_or_404(User, username=username)
-    Following.objects.get_or_create(follower=request.user, following=user_to_follow)
-    return redirect('profile', username=username)
+def toggle_follow(request, username):
+    target_user = get_object_or_404(User, username=username)
+    current_user = request.user
 
+    if current_user == target_user:
+        return JsonResponse({'success': False, 'error': 'You cannot follow yourself'}, status=400)
 
-@login_required
-def unfollow_user(request, username):
-    user_to_unfollow = get_object_or_404(User, username=username)
-    Following.objects.filter(follower=request.user, following=user_to_unfollow).delete()
-    return redirect('profile', username=username)
+    # Check if the relationship exists
+    follow, created = Follower.objects.get_or_create(user=current_user, followed_user=target_user)
+
+    if not created:
+        # If it already exists, remove it (unfollow)
+        follow.delete()
+        return JsonResponse({'success': True, 'following': False})
+
+    return JsonResponse({'success': True, 'following': True})
 
 
 def profile(request, username):
@@ -300,12 +315,12 @@ def view_post(request, post_id):
 
 
 def get_profile_recommendations(user, limit=3):
-   
-    # Get the user's UserProfile instance   
-    user_profile = user.userprofile
+    # Get a list of user IDs that the current user is already following
+    following_user_ids = Follower.objects.filter(user=user).values_list('followed_user_id', flat=True)
 
-    # Exclude the profiles the user is already following and the user's own profile
-    recommendations = UserProfile.objects.exclude(Q(followers=user_profile) | Q(user=user)
+    # Get recommendations by excluding users the current user is following and the user themselves
+    recommendations = UserProfile.objects.exclude(
+        Q(user__id__in=following_user_ids) | Q(user=user)
     ).order_by('?')[:limit]
 
     return recommendations
@@ -349,5 +364,39 @@ def unbookmark_post(request, post_id):
         except Post.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Post not found'})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+def global_search(request):
+    query = request.GET.get('q', '').strip()
+    if query:
+        # Search profiles (username, bio)
+        profiles = UserProfile.objects.filter(
+            Q(user__username__icontains=query) | Q(bio__icontains=query)
+        ).select_related('user')
+
+        # Search posts (text content)
+        posts = Post.objects.filter(
+            Q(text__icontains=query)
+        ).select_related('author')
+
+        # Prepare results for JSON response
+        profiles_data = [{
+            'username': profile.user.username,
+            'bio': profile.bio,
+            'avatar': profile.avatar.url if profile.avatar else None,
+            'profile_url': f'/profile/{profile.user.username}/'
+        } for profile in profiles]
+
+        posts_data = [{
+            'id': post.id,
+            'text': post.text,
+            'author': post.author.username,
+            'post_url': f'/post/{post.id}/',
+            'created_at': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        } for post in posts]
+
+        return JsonResponse({'profiles': profiles_data, 'posts': posts_data}, status=200)
+
+    return JsonResponse({'error': 'No query provided'}, status=400)
 
 

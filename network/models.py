@@ -19,7 +19,6 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     bio = models.TextField(blank=True, null=True)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True, null=True)
-    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
     bookmarks = models.ManyToManyField(Post, related_name="bookmarked_by", blank=True)
 
     def __str__(self):
@@ -36,18 +35,6 @@ class Follower(models.Model):
 
     class Meta:
         unique_together = ('user', 'followed_user')
-
-
-class Following(models.Model):
-    follower = models.ForeignKey(User, related_name='following_set', on_delete=models.CASCADE)
-    following = models.ForeignKey(User, related_name='followers_set', on_delete=models.CASCADE)
-    followed_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('follower', 'following')  # Ensure a user can only follow another user once
-
-    def __str__(self):
-        return f"{self.follower.username} follows {self.following.username}"
 
 
 class Comment(models.Model):

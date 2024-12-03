@@ -8,14 +8,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gamers Hub</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/static/home.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cyborg/bootstrap.min.css">
   <link rel="stylesheet" href="/static/feed.css">
+  <link rel="stylesheet" href="/static/home.css">
   <link rel="stylesheet" href="/static/sidebar.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
   <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
+
 
 <body style="background-color: black">
   <div class="app-container container-fluid">
@@ -30,7 +31,7 @@
           </a>
           <ul class="nav flex-column mt-4">
             <li class="nav-item">
-                  <a class="nav-link text-white" href="{% url 'home' %}"><i class="bi bi-house-door me-2"></i>Home</a>
+                  <a class="nav-link text-white" href="{% url 'home' %}"><i class="bi bi-house-door me-2"></i>Explore</a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-white" href="#"><i class="bi bi-bell me-2"></i>Notifications</a>
@@ -39,7 +40,7 @@
               <a class="nav-link text-white" href="{% url 'view_bookmarks' %}"><i class="bi bi-save2 me-2"></i>Bookmarks</a>
             </li>
           </ul>
-          <button class="btn btn-outline-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
+          <button class="btn btn-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
             Create Post
           </button>
         </div>
@@ -90,7 +91,7 @@
       <!-- Main Content -->
       <main class="col-xxl-7 col-xl-6 col-lg-6 px-4 main-content" style="background-color: black">
         <div class="container mt-5">
-          <h3 class="mb-4" style="color: white;">Home Feed</h3>
+          <h3 class="mb-4" style="color: white;">Lobby</h3>
           <!-- Post Cards -->
           {% if selected_post %}
           <!-- Display Selected Post with Comments -->
@@ -199,13 +200,16 @@
             </div>
       </main>
 
+
       <!-- Aside Content -->
       <aside class="col-xxl-3 col-xl-3 col-lg-3 px-3 d-flex flex-column" style="background-color: black">
         <div class="position-sticky" style="top: 20px;">
           <div class="search-bar mb-4 mt-3">
-            <input type="text" class="form-control" placeholder="Search Network">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search Network">
+            <div id="searchResults" class="card mt-3 d-none">
+            </div>
           </div>
-
+          
           <div class="suggestions-card card p-3">
             <h5 class="mb-3">You might know</h5>
             <ul class="list-unstyled">
@@ -218,14 +222,15 @@
                     {{ profile.user.username }}
                   </a>
                 </div>  
-                <form method="post" action="#">
-                  {% csrf_token %}
-                  {% if request.user in profile_owner.profile.followers.all %}
-                    <button formaction="#" class="btn btn-outline-dark ms-2">Unfollow</button>
-                  {% else %}
-                    <button class="btn btn-outline-dark ms-2">Follow</button>
-                  {% endif %} 
-                </form>
+                <div>
+                  <button class="btn btn-outline-dark ms-2" id="follow-btn" data-username="{{ profile.user.username }}">
+                    {% if user in profile_user.followers.all %}
+                    Unfollow
+                    {% else %}
+                    Follow
+                    {% endif %}
+                  </button>
+                </div>
               </li>
               {% empty %}
               <p>No recommendations available.</p>
@@ -473,6 +478,97 @@
       document.getElementById('backToFeed').addEventListener('click', () => {
           history.back();
         });
+    </script>
+
+
+    <!-- global search -->
+    <script>
+      document.getElementById('searchInput').addEventListener('input', function () {
+          const query = this.value.trim();
+
+          if (query.length > 0) {
+            fetch(`/search/?q=${encodeURIComponent(query)}`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.profiles || data.posts) {
+                  let resultsHTML = '';
+
+                  // Display profiles
+                  if (data.profiles && data.profiles.length > 0) {
+                    resultsHTML += '<h5>Profiles</h5><ul>';
+                    data.profiles.forEach(profile => {
+                      resultsHTML += `
+                                <li>
+                                    <a href="${profile.profile_url}">
+                                        <img src="${profile.avatar || '/static/default-avatar.png'}" alt="Avatar" width="30">
+                                        ${profile.username}
+                                    </a>
+                                    <p>${profile.bio || ''}</p>
+                                </li>
+                            `;
+                    });
+                    resultsHTML += '</ul>';
+                  }
+
+                  // Display posts
+                  if (data.posts && data.posts.length > 0) {
+                    resultsHTML += '<h5>Posts</h5><ul>';
+                    data.posts.forEach(post => {
+                      resultsHTML += `
+                                <li>
+                                    <a href="${post.post_url}">
+                                        <strong>${post.author}</strong>: ${post.text}
+                                    </a>
+                                    <span>${post.created_at}</span>
+                                </li>
+                            `;
+                    });
+                    resultsHTML += '</ul>';
+                  }
+
+                  document.getElementById('searchResults').innerHTML = resultsHTML;
+                } else {
+                  document.getElementById('searchResults').innerHTML = '<p>No results found.</p>';
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('searchResults').innerHTML = '<p>Something went wrong. Please try again later.</p>';
+              });
+          } else {
+            document.getElementById('searchResults').innerHTML = '';
+          }
+        });
+    </script>
+
+    <script>
+      const searchResults = document.getElementById('searchResults');
+
+      if (searchResults.length == 0){
+        searchResults.classList.add('d-none');
+      }
+      else{
+        searchResults.classList.remove('d-none');
+      }
+    </script>
+
+    <script>
+      const followBtn = document.getElementById('follow-btn');
+      followBtn.addEventListener('click', () => {
+        const username = followBtn.dataset.username;
+        fetch(`/follow/${username}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              followBtn.textContent = data.following ? 'Unfollow' : 'Follow';
+            }
+          });
+      });
     </script>
 
 </body>

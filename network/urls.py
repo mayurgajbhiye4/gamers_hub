@@ -12,9 +12,9 @@ urlpatterns = [
     path('profile/<str:username>/followers/', views.followers, name='followers'),
     path('profile/<str:username>/following/', views.following, name='following'),
     
-    path('follow/<str:username>/', views.follow_user, name='follow'),
-    path('unfollow/<str:username>/', views.unfollow_user, name='unfollow'),
+    path('follow/<str:username>/', views.toggle_follow, name='toggle_follow'),
     
+
     path('create_post/', views.create_post, name='create_post'),
     path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
     path('post/<int:post_id>/update/', views.update_post, name='update_post'),
@@ -31,6 +31,8 @@ urlpatterns = [
     path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark_post'),
     path('bookmarks/', views.view_bookmarks, name='view_bookmarks'),
     path('unbookmark/<int:post_id>/', views.unbookmark_post, name='unbookmark_post'),
+
+    path('search/', views.global_search, name='global_search'),
 ]
 
 if settings.DEBUG:
