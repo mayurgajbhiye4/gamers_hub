@@ -1,7 +1,7 @@
 body{
     margin: 0;
-    font-family: Arial, sans-serif;
     text-align: center;
+    font-family: "Fira Code", monospace;
     min-height: 100vh;
     display: flex;
     flex-direction: column;

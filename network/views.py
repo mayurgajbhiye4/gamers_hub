@@ -241,9 +241,6 @@ def edit_profile(request):
         if avatar:
             user_profile.avatar = avatar
 
-        # Update following list
-        user_profile.following.set(following_ids)  # Set the selected users as following
-
         # Save the profile
         user_profile.save()
 

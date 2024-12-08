@@ -1,6 +1,5 @@
 .search-bar input {
-    border-radius: 20px;
-    padding: 10px;
+    border-radius: 15px;
 }
 
 /* Suggestions card styling */
@@ -18,5 +17,5 @@
 /* Follow button styling */
 .suggestions-card .btn {
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 10px;
 }

@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cyborg/bootstrap.min.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-dark ms-2">👈</a>
-        <h1 class="text-center mt-5">Followers</h1>
+    <div class="container mt-5" style="max-width: 650px;">  
+        <a href="{% url 'profile' request.user.username %}" class="btn btn-light ms-2">Go back</a>
+        <h1 class="text-center mt-4">Followers</h1>
         <div class="list-group">
             {% for follower in followers %}
                 <a href="{% url 'profile' follower.username %}" class="list-group-item list-group-item-action">
