@@ -6,4 +6,4 @@ class NetworkConfig(AppConfig):
     name = 'network'
 
     def ready(self):
-        import network.signals
+        import network.signals  

@@ -14,7 +14,6 @@ urlpatterns = [
     
     path('follow/<str:username>/', views.toggle_follow, name='toggle_follow'),
     
-
     path('create_post/', views.create_post, name='create_post'),
     path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
     path('post/<int:post_id>/update/', views.update_post, name='update_post'),
@@ -28,11 +27,17 @@ urlpatterns = [
     path("post/<int:post_id>/toggle_like/", views.toggle_like, name="toggle_like"),
     path('post/<int:post_id>/add_comment/', views.add_comment, name="add_comment"),
 
-    path('bookmark/<int:post_id>/', views.bookmark_post, name='bookmark_post'),
     path('bookmarks/', views.view_bookmarks, name='view_bookmarks'),
-    path('unbookmark/<int:post_id>/', views.unbookmark_post, name='unbookmark_post'),
+    path('toggle-bookmark/<int:post_id>/', views.toggle_bookmark, name='toggle_bookmark'),
 
     path('search/', views.global_search, name='global_search'),
+
+    path('notifications/', views.notifications, name='notifications'),
+    path('check_notifications/', views.check_notifications, name='check_notifications'),
+
+    path('game_zone/', views.game_zone_list, name='game_zone_list'),
+    path('game-zone/ajax/', views.game_zone_ajax, name='game_zone_ajax'),  # AJAX endpoint
+    path('game_zone/<str:game_title>/', views.game_zone, name='game_zone'),
 ]
 
 if settings.DEBUG:

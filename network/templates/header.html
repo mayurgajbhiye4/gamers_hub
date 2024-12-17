@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gamers Hub</title>
+  <title>GameZone</title>
   <link rel="stylesheet" href="/static/css/style.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -14,7 +15,7 @@
 <body>
   <div class="navbar navbar-dark" style="background-color: black">
     <div class="navbar-logo text-white">
-      <a href="{% url 'home' %}">Gamers Hub</a>
+      <a href="{% url 'home' %}">GameZone</a>
     </div>
     <div class="navbar-right">
       {% if user.is_authenticated %}
@@ -22,8 +23,8 @@
       <button class="btn btn-outline-light" style="color: white;" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</button>
       {% else %}
       <span>
-        <a type="submit" class="btn btn-outline-light" href="{% url 'login' %}">Log In</a>
-        <a type="submit" class="btn btn-outline-light" href="{% url 'signup' %}">Sign Up</a>
+        <a type="submit" class="btn btn-light" href="{% url 'login' %}">Log In</a>
+        <a type="submit" class="btn btn-light" href="{% url 'signup' %}">Sign Up</a>
       </span>
       {% endif %}
     </div>

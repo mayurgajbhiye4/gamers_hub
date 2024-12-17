@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,14 +13,14 @@
 </head>
 <body>
     <div class="container mt-5" style="max-width: 650px;">
-        <a href="{% url 'profile' request.user.username %}" class="btn btn-light ms-2">Go back</a>
+        <a href="{% url 'profile' user %}" class="btn btn-light ms-2">Go back</a>
         <h1 class="text-center">Following</h1>
         <div class="list-group">
             {% for profile in following_profiles %} 
             <div class="list-group-item d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
-                    <img src="{{ profile.userprofile.avatar.url }}" class="rounded-circle me-2" alt="Avatar" width="40"
-                        height="40">
+                    <img src="{% if profile.userprofile.avatar %}{{ profile.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                    class="rounded-circle me-2" alt="Avatar" width="40" height="40">
                     <a href="{% url 'profile' profile.username %}" class="text-decoration-none text-white">
                         {{ profile.username }}
                     </a>
@@ -39,37 +40,7 @@
         
     </div>
 
-    <script>
-        document.querySelectorAll('.follow-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const username = this.dataset.username;
-
-                // Make a POST request to toggle the follow state
-                fetch(`/follow/${username}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update the button text based on follow state
-                            if (data.following) {
-                                this.textContent = 'Unfollow';
-                            } else {
-                                this.textContent = 'Follow';
-                            }
-                        } else {
-                            console.error('Error:', data.error || 'Failed to follow/unfollow');
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
-    </script>
-     
+    <script src="{% static 'js/follow.js' %}"></script>
 
 </body>
 </html>

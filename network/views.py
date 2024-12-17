@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils import timezone
 from django.core import serializers
 from django.utils.timezone import localtime
@@ -18,10 +18,15 @@ from django.urls import reverse
 def home(request):
     posts = list(Post.objects.all().order_by('-timestamp'))
     recommendations = get_profile_recommendations(request.user)
+
+    user_profile = request.user.userprofile
+    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
+
     return render(request, 'home.html', 
                   {'posts': posts, 
                    'recommendations': recommendations,
-                   'user_likes': {post.id: post.likes.count() for post in posts}
+                   'user_likes': {post.id: post.likes.count() for post in posts},
+                   'bookmarked_posts': bookmarked_posts
                    })
 
 def signUp(request):
@@ -72,15 +77,19 @@ def toggle_follow(request, username):
     if current_user == target_user:
         return JsonResponse({'success': False, 'error': 'You cannot follow yourself'}, status=400)
 
-    # Check if the relationship exists
+    # Check if the follow relationship already exists
     follow, created = Follower.objects.get_or_create(user=current_user, followed_user=target_user)
 
     if not created:
-        # If it already exists, remove it (unfollow)
+        # Unfollow if the relationship exists
         follow.delete()
-        return JsonResponse({'success': True, 'following': False})
+        following = False
+    else:
+        # Follow if the relationship doesn't exist
+        following = True
 
-    return JsonResponse({'success': True, 'following': True})
+    # Return the updated follow state
+    return JsonResponse({'success': True, 'following': following})
 
 
 def profile(request, username):
@@ -95,6 +104,11 @@ def profile(request, username):
     is_own_profile = request.user == profile_owner
 
     recommendations = get_profile_recommendations(request.user)
+
+    is_following = Follower.objects.filter(user=request.user, followed_user=profile_owner).exists()
+
+    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
+
     # Context to pass to the template
     context = {
         'profile_owner': profile_owner,
@@ -103,7 +117,9 @@ def profile(request, username):
         'last_name': profile_owner.last_name,
         'posts': posts,
         'is_own_profile': is_own_profile,
-        'recommendations': recommendations
+        'recommendations': recommendations,
+        'is_following': is_following,
+        'bookmarked_posts': bookmarked_posts
     }
 
     return render(request, 'profile.html', context)
@@ -117,6 +133,7 @@ def validate_file_size(file, max_size):
 def create_post(request):
     if request.method == 'POST':
         text = request.POST.get('text')
+        game_title = request.POST.get('game_title')
         image = request.FILES.get('image')
         video = request.FILES.get('video')
 
@@ -136,6 +153,7 @@ def create_post(request):
         post = Post.objects.create(
             author=request.user,
             text=text,
+            game_title=game_title,
             image=image,
             video=video
         )
@@ -164,11 +182,15 @@ def update_post(request, post_id):
 
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         post_text = request.POST.get('text', '')
+        game_title = request.POST.get('game_title', '')
         post.image = request.FILES.get('image', post.image)
         post.video = request.FILES.get('video', post.video)
 
         if post_text.strip():
             post.text = post_text
+            
+            post.game_title = game_title.strip() if game_title.strip() else None
+            
             post.save()
             
             return JsonResponse({
@@ -186,10 +208,13 @@ def update_post(request, post_id):
 @login_required
 def post_detail(request, post_id):
     selected_post = get_object_or_404(Post, id=post_id)  # Load the selected post
-
+    user_profile = request.user.userprofile
+    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
+    
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
         # Handle the toggle like functionality
         user = request.user
+
         if selected_post.likes.filter(id=user.id).exists():
             selected_post.likes.remove(user)
             liked = False
@@ -201,7 +226,7 @@ def post_detail(request, post_id):
         return JsonResponse({
             'success': True,
             'liked': liked,
-            'likes_count': selected_post.likes.count(),
+            'likes_count': selected_post.likes.count()
         })
 
     # Default case: Render the post details
@@ -210,6 +235,7 @@ def post_detail(request, post_id):
         'selected_post': selected_post,
         'likes_count': likes_count,
         'post_id': post_id,
+        'bookmarked_posts': bookmarked_posts
     })
 
 def fetch_new_posts(request):
@@ -227,15 +253,19 @@ def edit_profile(request):
         last_name = request.POST.get('last_name')
         bio = request.POST.get('bio')
         avatar = request.FILES.get('avatar')
+        remove_avatar = request.POST.get('remove_avatar')
         following_ids = request.POST.getlist('following')
 
         request.user.first_name = first_name
         request.user.last_name = last_name
-        request.user.save()
+        request.user.save() 
 
-        # Update bio
-        if bio:
-            user_profile.bio = bio
+        
+        user_profile.bio = bio
+
+        if remove_avatar:
+            user_profile.avatar.delete()  # Deletes the avatar file from storage
+            user_profile.avatar = None  # Set the field to null/blank
 
         # Update avatar if provided
         if avatar:
@@ -303,14 +333,6 @@ def add_comment(request, post_id):
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
   
-@login_required
-def view_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    post.views_count = models.F('views_count') + 1  # Increment views
-    post.save(update_fields=['views_count'])
-    return redirect('post_detail', post_id=post_id)
-
-
 def get_profile_recommendations(user, limit=3):
     # Get a list of user IDs that the current user is already following
     following_user_ids = Follower.objects.filter(user=user).values_list('followed_user_id', flat=True)
@@ -324,20 +346,20 @@ def get_profile_recommendations(user, limit=3):
 
 
 @login_required
-def bookmark_post(request, post_id):
+def toggle_bookmark(request, post_id):
     if request.method == "POST":
         post = get_object_or_404(Post, id=post_id)
-        user_profile = request.user.userprofile
+        user_profile = request.user.userprofile  # Fetch the user's profile
         bookmarked = False
 
-        # Toggle bookmark
-        if post in user_profile.bookmarks.all():
+        # Toggle the bookmark status
+        if user_profile.bookmarks.filter(id=post.id).exists():  
             user_profile.bookmarks.remove(post)
         else:
             user_profile.bookmarks.add(post)
             bookmarked = True
 
-        # Return JSON response for AJAX
+        # Return the updated bookmark status
         return JsonResponse({'bookmarked': bookmarked})
     
     return HttpResponseBadRequest("Invalid request")
@@ -345,40 +367,42 @@ def bookmark_post(request, post_id):
 
 @login_required
 def view_bookmarks(request):
-    profile = request.user.userprofile
-    bookmarks = profile.bookmarks.all()  # Fetch all bookmarked posts
+    user_profile = request.user.userprofile
+    bookmarks = user_profile.bookmarks.all()  # Fetch all bookmarked posts
 
-    return render(request, 'view_bookmarks.html', {'bookmarks': bookmarks})
+    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
 
-
-@login_required
-def unbookmark_post(request, post_id):
-    if request.method == 'POST':
-        try:
-            post = Post.objects.get(id=post_id)
-            request.user.userprofile.bookmarks.remove(post)
-            return JsonResponse({'status': 'success'})
-        except Post.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Post not found'})
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+    return render(request, 'view_bookmarks.html', 
+                  {'bookmarks': bookmarks, 
+                   'bookmarked_posts': bookmarked_posts })
 
 
 def global_search(request):
     query = request.GET.get('q', '').strip()
     if query:
+        limit = 10
         # Search profiles (username, bio)
         profiles = UserProfile.objects.filter(
-            Q(user__username__icontains=query) | Q(bio__icontains=query)
-        ).select_related('user')
+            Q(user__username__icontains=query) | 
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query) |
+            Q(bio__icontains=query)
+        ).select_related('user')[:limit]
 
         # Search posts (text content)
         posts = Post.objects.filter(
             Q(text__icontains=query)
-        ).select_related('author')
+        ).select_related('author')[:limit]
+
+        game_zones = Post.objects.filter(
+            Q(game_title__icontains=query)
+        ).values_list('game_title', flat=True).distinct()[:limit]
 
         # Prepare results for JSON response
         profiles_data = [{
             'username': profile.user.username,
+            'first_name': profile.user.first_name,
+            'last_name': profile.user.last_name,
             'bio': profile.bio,
             'avatar': profile.avatar.url if profile.avatar else None,
             'profile_url': f'/profile/{profile.user.username}/'
@@ -392,8 +416,74 @@ def global_search(request):
             'created_at': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
         } for post in posts]
 
-        return JsonResponse({'profiles': profiles_data, 'posts': posts_data}, status=200)
+        game_zones_data = [{
+            'game_title': title,
+            'game_url': f'/game_zone/{title}/'
+        } for title in game_zones]
+
+        return JsonResponse({'profiles': profiles_data, 
+                             'posts': posts_data,
+                             'game_zones': game_zones_data
+                             },status=200)
 
     return JsonResponse({'error': 'No query provided'}, status=400)
 
 
+def create_notification(user, sender, notification_type, post=None, comment=None):
+    Notification.objects.create(
+        user=user,
+        sender=sender,
+        notification_type=notification_type,
+        post=post,
+        comment=comment
+    )
+
+@login_required
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
+    notifications.filter(is_read=False).update(is_read=True)
+
+    post_related_notifications = ['like', 'comment', 'bookmark']
+
+    return render(request, 'notifications.html', 
+                  {'notifications': notifications,
+                  'post_related_notifications' : post_related_notifications
+                  })
+
+
+@login_required
+def check_notifications(request):
+    unread = Notification.objects.filter(user=request.user, is_read=False).exists()
+    return JsonResponse({'unread': unread})
+
+
+def game_zone_list(request):
+    # Get distinct game titles from all posts
+    game_titles = Post.objects.values_list('game_title', flat=True).distinct()
+    game_titles = Post.objects.exclude(game_title__isnull=True).exclude(game_title='').values_list('game_title', flat=True).distinct()
+    return render(request, 'game_zone_list.html', {'game_titles': game_titles})
+
+
+def game_zone_ajax(request):
+    # AJAX endpoint for dynamic search
+    query = request.GET.get('q', '')
+    if query:
+        filtered_games = Post.objects.filter(Q(game_title__icontains=query)).values_list('game_title', flat=True).distinct()
+    else:
+        filtered_games = Post.objects.values_list('game_title', flat=True).distinct()
+
+    return JsonResponse({'games': list(filtered_games)})
+
+
+def game_zone(request, game_title):
+    # Fetch posts filtered by the selected game_title
+    posts = Post.objects.filter(game_title=game_title).order_by('-timestamp')
+
+    user_profile = request.user.userprofile
+    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
+
+    return render(request, 'game_zone.html', 
+                  {'posts': posts, 
+                   'game_title': game_title,
+                   'bookmarked_posts': bookmarked_posts
+                   })
