@@ -8,29 +8,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PostAll</title>
+    <title>GameZone</title>
     <!-- <link rel ="stylesheet" href ="/static/css/style.css"> -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cyborg/bootstrap.min.css">
 </head>
 <body>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        background-image: url("{% static 'images/game1.jpg' %}");
+        /* Your image */
+        background-size: cover;
+        /* Ensure the image covers the entire screen */
+        background-position: center;
+        background-repeat: no-repeat;
+        display: flex;
+        overflow: hidden;
+        /* Prevent scrolling */
+    }
+
+    .form-container {
+        position: absolute;
+        top: 53%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        /* Place form above the slider */
+        background: rgba(18, 18, 18, 0.8);
+        /* Add slight transparency for readability */
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        max-width: 485px;
+        text-align: center;
+    }
+</style>
+
     <div class="d-flex justify-content-center">
-        <form method="POST">
-            <br>    
-            <h2>SignUp</h2>
-            <br>
-            {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-success" role="alert">
-                    {{ message }}
-                </div>       
-                {% endfor %}
-            {% endif %}
-            {% csrf_token %}
-            <br>
-            {{ form|crispy }}
-            <p> Already have an account? <a href="{% url 'login' %}">Log In</a></p>
-            <button type="submit" class="btn btn-outline-dark">Register</button>
-        </form>
+        <div class="form-container">
+            <form method="POST">
+                <br>    
+                <h2>SignUp</h2>
+                <br>
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-success" role="alert">
+                        {{ message }}
+                    </div>       
+                    {% endfor %}
+                {% endif %}
+                {% csrf_token %}
+                <br>
+                {{ form|crispy }}
+                <p> Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+                <button type="submit" class="btn btn-outline-dark">Register</button>
+            </form>
+        </div>
     </div>
 
 </body>

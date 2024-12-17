@@ -8,26 +8,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PostAll</title>
+    <title>GameZone</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cyborg/bootstrap.min.css">
 </head>
 <body>
-    <div class="d-flex justify-content-center">
+
+<style>
+    body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-image: url("{% static 'images/game1.jpg' %}"); /* Your image */
+    background-size: cover; /* Ensure the image covers the entire screen */
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    overflow: hidden;/* Prevent scrolling */
+}
+
+    .form-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10; /* Place form above the slider */
+    background: rgba(18, 18, 18, 0.8); /* Add slight transparency for readability */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 400px; /* Set max width */
+    text-align: center;
+}
+</style>
+
+<div class="d-flex justify-content-center">
+    <div class="form-container">
+        <!-- Your login/signup form here -->
         <form method="POST">
-            {% if messages %}
-            {% for message in messages %}
+                {% if messages %}
+                {% for message in messages %}
                 {{ message }}
-            {% endfor %}
-            {% endif %}
-            {% csrf_token %}
-            <br>
-            <h2>Log In</h2>
-            <br>
-            {{ form|crispy }}
-            <p> Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
-            <button type="submit" class="btn btn-outline-dark">Log In</button>
-        </form>
+                {% endfor %}
+                {% endif %}
+                {% csrf_token %}
+                <br>
+                <h2>Log In</h2>
+                <br>
+                {{ form|crispy }}
+                <p> Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+                <button type="submit" class="btn btn-outline-dark">Log In</button>
+        </form>  
     </div>
+</div>
 
 </body>
 </html>
