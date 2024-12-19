@@ -1,7 +1,9 @@
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed, pre_save
 from django.dispatch import receiver
 from .models import *
 from django.contrib.auth.models import User
+import requests
+from decouple import config
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -70,3 +72,13 @@ def send_bookmark_notification(sender, instance, action, pk_set, **kwargs):
                 post=post,
                 content_object=post
             )
+
+
+@receiver(pre_save, sender=GameZone)
+def fetch_game_image(sender, instance, **kwargs):
+    RAWG_API_KEY = config('RAWG_API_KEY')
+    if not instance.image_url:
+        response = requests.get(f'https://api.rawg.io/api/games?search={instance.title}&key=RAWG_API_KEY')
+        if response.status_code == 200:
+            data = response.json()
+            instance.image_url = data['results'][0]['background_image'] if data['results'] else None

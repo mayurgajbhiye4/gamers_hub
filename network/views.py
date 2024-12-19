@@ -1,17 +1,20 @@
 from django.shortcuts import render,  redirect, get_object_or_404
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, JsonResponse
 from .models import Post, Comment
 from .forms import signupForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import *
 from django.core.exceptions import ValidationError
-from django.http import JsonResponse
 from django.db.models import Q, Prefetch
 from django.utils import timezone
 from django.core import serializers
 from django.utils.timezone import localtime
 from django.urls import reverse
+import requests 
+from decouple import config
+from django.core.cache import cache
+from django.utils.text import slugify
 
 
 @login_required(login_url='/login/')
@@ -459,9 +462,24 @@ def check_notifications(request):
 
 def game_zone_list(request):
     # Get distinct game titles from all posts
-    game_titles = Post.objects.values_list('game_title', flat=True).distinct()
     game_titles = Post.objects.exclude(game_title__isnull=True).exclude(game_title='').values_list('game_title', flat=True).distinct()
-    return render(request, 'game_zone_list.html', {'game_titles': game_titles})
+    game_titles = [title.strip() for title in game_titles]
+    
+    game_list = [   
+        (game, get_game_image(game))
+        for game in game_titles
+    ]
+
+    game_images = {game[0].strip().lower(): game[1] for game in game_list}
+
+    print("Game Titles:", game_titles)
+    print("Game Images:", game_images)     
+
+    return render(request, "game_zone_list.html",
+        {"game_titles": game_titles,
+         "game_images": game_images,
+         "default_game_image": '/static/images/default_game_avatar.jpg'}
+    )
 
 
 def game_zone_ajax(request):
@@ -475,7 +493,7 @@ def game_zone_ajax(request):
     return JsonResponse({'games': list(filtered_games)})
 
 
-def game_zone(request, game_title):
+def game_zone(request, game_title): 
     # Fetch posts filtered by the selected game_title
     posts = Post.objects.filter(game_title=game_title).order_by('-timestamp')
 
@@ -487,3 +505,32 @@ def game_zone(request, game_title):
                    'game_title': game_title,
                    'bookmarked_posts': bookmarked_posts
                    })
+
+
+def get_game_image(game_title):
+    cache_key = f"game_image_{slugify(game_title)}"
+    image_url = cache.get(cache_key)
+    # RAWG_API_KEY = config('RAWG_API_KEY')
+
+    if not image_url:
+        # If not cached, fetch from RAWG API
+        response = requests.get(f"https://api.rawg.io/api/games", params={
+            'search': game_title,
+            'key': 'RAWG_API_KEY'
+        })
+        if response.status_code == 200:
+            data = response.json()
+            # Check if there are results and that 'background_image' exists
+            if data.get('results') and 'background_image' in data['results'][0]:
+                image_url = data['results'][0]['background_image']
+            else:
+                # Fallback to default image if no valid image found
+                image_url = '/static/images/default_game_avatar.jpg'
+        else:
+            # Fallback to default image
+            image_url = '/static/images/default_game_avatar.jpg'
+        
+        # Cache the image URL for 1 day
+        cache.set(cache_key, image_url, timeout=86400)
+
+    return image_url

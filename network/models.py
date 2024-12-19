@@ -76,3 +76,6 @@ class Notification(models.Model):
         return f"{self.user.username} - {self.notification_type}"
 
 
+class GameZone(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+    image_url = models.URLField(blank=True, null=True)
