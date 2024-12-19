@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'gamers_hub.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gamers_hub_db',
+        'NAME': 'gamezone_db',
         'USER': config('DB_USERNAME'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': 'localhost',
+        'HOST': 'database.chkgakgg8h4h.ap-south-1.rds.amazonaws.com',
         'PORT': '5432'          
     }
 }
