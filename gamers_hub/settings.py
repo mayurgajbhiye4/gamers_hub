@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -80,11 +79,11 @@ WSGI_APPLICATION = 'gamers_hub.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql',  
         'NAME': 'gamezone_db',
         'USER': os.getenv('DB_USERNAME'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': 'database.chkgakgg8h4h.ap-south-1.rds.amazonaws.com',
+        'HOST': 'database-gamezone.chkgakgg8h4h.ap-south-1.rds.amazonaws.com',
         'PORT': '5432'          
     }
 }
