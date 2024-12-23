@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-{% load static %} 
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -33,6 +33,7 @@
     margin: none;
     padding: none;
   }
+
   .back-button i {
     font-size: 1.5rem;
     /* Icon size */
@@ -47,16 +48,19 @@
   <div class="app-container container-fluid">
     <div class="row vh-100 g-0">
       <!-- Sidebar -->
-      <nav class="col-xxl-2 col-xl-3 col-lg-3 text-white sidebar d-flex flex-column text-start" style="background-color: black">
+      <nav class="col-xxl-2 col-xl-3 col-lg-3 text-white sidebar d-flex flex-column text-start"
+        style="background-color: black">
         <div class="position-sticky" style="top: 20px;">
           <a class="navbar-brand my-3" href="{% url 'profile' request.user.username %}">
-            <img src="{% if request.user.userprofile.avatar %}{{ request.user.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-            class="rounded-circle me-2" alt="Avatar" width="40" height="40">
+            <img
+              src="{% if request.user.userprofile.avatar %}{{ request.user.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+              class="rounded-circle me-2" alt="Avatar" width="40" height="40">
             <strong>@{{ request.user.username }}</strong>
           </a>
           <ul class="nav flex-column mt-4 text-start">
             <li class="nav-item">
-                  <a class="nav-link text-white" href="{% url 'game_zone_list' %}"><i class="bi bi-controller me-2"></i>GameZone</a>
+              <a class="nav-link text-white" href="{% url 'game_zone_list' %}"><i
+                  class="bi bi-controller me-2"></i>GameZone</a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-white" href="{% url 'notifications' %}">
@@ -64,7 +68,8 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-white" href="{% url 'view_bookmarks' %}"><i class="bi bi-save2 me-2"></i>Bookmarks</a>
+              <a class="nav-link text-white" href="{% url 'view_bookmarks' %}"><i
+                  class="bi bi-save2 me-2"></i>Bookmarks</a>
             </li>
           </ul>
           <button class="btn btn-light w-100 mt-3" data-bs-toggle="modal" data-bs-target="#createPostModal">
@@ -88,8 +93,8 @@
                 <textarea name="text" class="form-control mb-3" placeholder="What's on your mind?" maxlength="1000"
                   required></textarea>
 
-                <input type="text" name="game_title" class="form-control mb-3" placeholder="Enter game title, e.g., Call of Duty"
-                  maxlength="100">
+                <input type="text" name="game_title" class="form-control mb-3"
+                  placeholder="Enter game title, e.g., Call of Duty" maxlength="100">
 
                 <label>Upload Image (Max: 20MB)</label>
                 <input type="file" name="image" class="form-control mb-3" accept="image/*">
@@ -120,12 +125,12 @@
 
       <!-- Main Content -->
       <main class="col-xxl-7 col-xl-6 col-lg-6 px-4 main-content" style="background-color: black">
-        <div class="container mt-5"> 
-          
+        <div class="container mt-5">
+
           <!-- Post Cards -->
           {% if selected_post %}
           <!-- Display Selected Post with Comments -->
-           
+
           <!-- Back Button -->
           <button class="back-button" onclick="history.back()" aria-label="Go Back">
             <i class="bi bi-arrow-left"></i>
@@ -134,12 +139,14 @@
           <div class="card mb-4">
             <div class="card-body">
               <div class="d-flex align-items-center">
-                <img src="{% if selected_post.author.userprofile.avatar %}{{ selected_post.author.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                <img
+                  src="{% if selected_post.author.userprofile.avatar %}{{ selected_post.author.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
                   alt="User" class="rounded-circle me-3" width="40" height="40">
                 <div>
-                  <a href="{% url 'profile' selected_post.author.username %}" style="text-decoration: none; color: white;">
-                  <strong>{{ selected_post.author.first_name }} {{ selected_post.author.last_name }}</strong>
-                  <span class="text-muted">@{{ selected_post.author.username }}</span>
+                  <a href="{% url 'profile' selected_post.author.username %}"
+                    style="text-decoration: none; color: white;">
+                    <strong>{{ selected_post.author.first_name }} {{ selected_post.author.last_name }}</strong>
+                    <span class="text-muted">@{{ selected_post.author.username }}</span>
                   </a>
                   <span class="text-muted">{{ selected_post.timestamp|timesince }} ago
                   </span>
@@ -147,7 +154,8 @@
               </div>
               <p class="mt-3" style="color: white;">{{ selected_post.text }}</p>
               {% if selected_post.image %}
-              <img src="{{ selected_post.image.url }}" class="rounded" style="max-width: 100%; max-height: 100%;" alt="Post Image">
+              <img src="{{ selected_post.image.url }}" class="rounded" style="max-width: 100%; max-height: 100%;"
+                alt="Post Image">
               {% endif %}
               {% if selected_post.video %}
               <video width="500" height="300" controls autoplay muted>
@@ -155,15 +163,16 @@
               </video>
               {% endif %}
               {% if selected_post.emoji %}
-                <span>{{ selected_post.emoji }}</span>
+              <span>{{ selected_post.emoji }}</span>
               {% endif %}
-              
+
               <button class="like-btn mt-3" data-post-id="{{ selected_post.id }}" type="button">
                 <i class="bi {% if user in selected_post.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
                 <span class="like-count" data-post-id="{{ selected_post.id }}">{{ likes_count }}</span>
               </button>
 
-              <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ selected_post.id }}" data-post-id="{{ selected_post.id }}">
+              <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ selected_post.id }}"
+                data-post-id="{{ selected_post.id }}">
                 {% if selected_post.id in bookmarked_posts %}
                 Unbookmark
                 {% else %}
@@ -175,98 +184,102 @@
               <div class="mt-3">
                 <h6>Comments</h6>
                 <div id="comments-container">
-                <ul class="list-group">
-                  {% for comment in selected_post.comments.all %}
-                  <li class="list-group-item">
-                    <div class="comment mb-2">
-                      <div class="d-flex align-items-center">
-                        <a href="{% url 'profile' comment.user.username %}" style="text-decoration: none;">
-                        <strong class="text-primary me-2">{{ comment.user.first_name }} {{ comment.user.last_name }}</strong>
-                        <span class="text-muted">@{{ comment.user.username }}</span>
-                        </a>
+                  <ul class="list-group">
+                    {% for comment in selected_post.comments.all %}
+                    <li class="list-group-item">
+                      <div class="comment mb-2">
+                        <div class="d-flex align-items-center">
+                          <a href="{% url 'profile' comment.user.username %}" style="text-decoration: none;">
+                            <strong class="text-primary me-2">{{ comment.user.first_name }} {{ comment.user.last_name
+                              }}</strong>
+                            <span class="text-muted">@{{ comment.user.username }}</span>
+                          </a>
+                        </div>
+                        <p class="mb-0" style="color: white;">{{ comment.text }}</p>
                       </div>
-                      <p class="mb-0" style="color: white;">{{ comment.text }}</p>
-                    </div>
-                  </li>
-                  {% empty %}
-                  <li class="list-group-item" style="color: white;">No comments yet.</li>
-                  {% endfor %}
-                </ul>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item" style="color: white;">No comments yet.</li>
+                    {% endfor %}
+                  </ul>
+                </div>
               </div>
-              </div>
-              
+
               <!-- Add Comment Form -->
               <form method="POST" id="add-comment-form" class="mt-3">
                 {% csrf_token %}
                 <div class="input-group">
-                  <input type="text" id="comment-text" name="text" class="form-control" placeholder="Write a comment..." />
+                  <input type="text" id="comment-text" name="text" class="form-control"
+                    placeholder="Write a comment..." />
                   <button type="submit" class="btn btn-primary">Add Comment</button>
                 </div>
               </form>
 
-              
-              </div>
+
             </div>
-              
-              {% else %}
-                <!-- Display Home Feed with All Posts -->
-                <h3 class="mb-4" style="color: white;">Lobby</h3>
-                {% for post in posts %}
-                <div class="card mb-4">
-                  <div class="card-body" onclick="openPostDetail( '{{ post.id }}' )" style="cursor: pointer;">
-                    <div class="d-flex align-items-center">
-                      <img src="{% if post.author.userprofile.avatar %}{{ post.author.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-                        alt="User" class="rounded-circle me-3" width="40" height="40">
-                      <div style="color: white;">
-                        <a href="{% url 'profile' post.author.username %}" style="text-decoration: none; color: white;">
-                        <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong>
-                        <span class="text-muted">@{{ post.author.username }}</span>
-                        </a>
-                        <span class="text-muted">{{ post.timestamp|timesince }} ago
-                        </span>
-                      </div>
-                    </div>
-                    <p class="mt-3" style="color: white;">{{ post.text }}</p>
-                    {% if post.image %}
-                    <img src="{{ post.image.url }}" class="rounded" style="max-width: 90%;" alt="Post Image">
-                    {% endif %}
-                    {% if post.video %}
-                    <video width="500" height="300" controls autoplay muted>
-                      <source src="{{ post.video.url }}" type="video/mp4">
-                    </video>
-                    {% endif %}
-                  </div>
-                  <div>
+          </div>
 
-                  <button class="like-btn mb-2" data-post-id="{{ post.id }}" type="button">
-                    <i class="bi {% if user in post.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
-                    <span class="like-count" data-post-id="{{ post.id }}">{{ user_likes.post.id }}</span>
-                  </button>
-                  
-                  <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}" data-post-id="{{ post.id }}">
-                    {% if post.id in bookmarked_posts %}
-                      Unbookmark
-                    {% else %}
-                      Bookmark
-                    {% endif %}
-                  </button>
-
-                  <small>
-                    {% if post.game_title and post.game_title != "Unknown Game" %}
-                    Posted
-                    in <a href="{% url 'game_zone' post.game_title %}" class="text-decoration-none">
-                      <span class="badge bg-primary">{{ post.game_title }}</span>
-                    </a>
-                    {% else %}
-                    <p><!-- No text displayed --></p>
-                    {% endif %}
-                  </small>
-
-                  </div>
+          {% else %}
+          <!-- Display Home Feed with All Posts -->
+          <h3 class="mb-4" style="color: white;">Lobby</h3>
+          {% for post in posts %}
+          <div class="card mb-4">
+            <div class="card-body" onclick="openPostDetail( '{{ post.id }}' )" style="cursor: pointer;">
+              <div class="d-flex align-items-center">
+                <img
+                  src="{% if post.author.userprofile.avatar %}{{ post.author.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                  alt="User" class="rounded-circle me-3" width="40" height="40">
+                <div style="color: white;">
+                  <a href="{% url 'profile' post.author.username %}" style="text-decoration: none; color: white;">
+                    <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong>
+                    <span class="text-muted">@{{ post.author.username }}</span>
+                  </a>
+                  <span class="text-muted">{{ post.timestamp|timesince }} ago
+                  </span>
                 </div>
-                {% endfor %}
-                {% endif %}
+              </div>
+              <p class="mt-3" style="color: white;">{{ post.text }}</p>
+              {% if post.image %}
+              <img src="{{ post.image.url }}" class="rounded" style="max-width: 90%;" alt="Post Image">
+              {% endif %}
+              {% if post.video %}
+              <video width="500" height="300" controls autoplay muted>
+                <source src="{{ post.video.url }}" type="video/mp4">
+              </video>
+              {% endif %}
             </div>
+            <div>
+
+              <button class="like-btn mb-2" data-post-id="{{ post.id }}" type="button">
+                <i class="bi {% if user in post.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                <span class="like-count" data-post-id="{{ post.id }}">{{ user_likes.post.id }}</span>
+              </button>
+
+              <button class="bookmark-btn btn btn-outline-dark btn-sm" id="bookmark-btn-{{ post.id }}"
+                data-post-id="{{ post.id }}">
+                {% if post.id in bookmarked_posts %}
+                Unbookmark
+                {% else %}
+                Bookmark
+                {% endif %}
+              </button>
+
+              <small>
+                {% if post.game_title and post.game_title != "Unknown Game" %}
+                Posted
+                in <a href="{% url 'game_zone' post.game_title %}" class="text-decoration-none">
+                  <span class="badge bg-primary">{{ post.game_title }}</span>
+                </a>
+                {% else %}
+                <p><!-- No text displayed --></p>
+                {% endif %}
+              </small>
+
+            </div>
+          </div>
+          {% endfor %}
+          {% endif %}
+        </div>
       </main>
 
 
@@ -275,22 +288,24 @@
         <div class="position-sticky" style="top: 20px;">
           <div class="search-bar mb-3 mt-3">
             <input type="text" id="searchInput" class="form-control" placeholder="Search Network">
-            <div id="searchResults" class="card mt-3 d-none" style="max-height: 400px; overflow-y: auto; color: white; text-decoration: none;">
+            <div id="searchResults" class="card mt-3 d-none"
+              style="max-height: 400px; overflow-y: auto; color: white; text-decoration: none;">
             </div>
           </div>
-          
+
           <div class="suggestions-card card p-3 w-auto">
             <h5 class="mb-3">Gamers around you</h5>
             <ul class="list-unstyled">
               {% for profile in recommendations %}
               <li class="d-flex align-items-center mb-3">
-                <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-                class="rounded-circle" alt="{{ profile.user.username }}" width="40" height="40">
-                <div class="ms-2" > 
+                <img
+                  src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                  class="rounded-circle" alt="{{ profile.user.username }}" width="40" height="40">
+                <div class="ms-2">
                   <a href="{% url 'profile' profile.user.username %}" style="text-decoration: none; color:white;">
                     {{ profile.user.username }}
                   </a>
-                </div>  
+                </div>
                 <div>
                   <button class="btn btn-outline-dark ms-2 follow-btn" data-username="{{ profile.user.username }}">
                     {% if user in profile_user.followers.all %}
@@ -364,8 +379,8 @@
 
   <script>
     function openPostDetail(postId) {
-        window.location.href = `{% url 'post_detail' 0 %}`.replace(0, postId);
-      }
+      window.location.href = `{% url 'post_detail' 0 %}`.replace(0, postId);
+    }
   </script>
 
   <script src="{% static 'js/fetch_new_post.js' %}"></script>
@@ -378,6 +393,7 @@
   <script src="{% static 'js/check_noti.js' %}"></script>
 
 </body>
+
 </html>
 
 {% endblock %}
