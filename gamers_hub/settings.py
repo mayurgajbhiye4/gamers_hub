@@ -171,9 +171,14 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
             'propagate': True,
+        },
+        'django.request': { 
+            'handlers': ['file'],
+            'level': 'ERROR',  # Logs request errors (500s)
+            'propagate': False,
         },
     },
 }
