@@ -41,29 +41,30 @@
                       {% else %}
                           #
                       {% endif %}" class="list-group-item list-group-item-action mb-4" style="height: 100px;">
-                    <img src="{% if notification.sender.userprofile.avatar %}{{ notification.sender.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                <img src="{% if notification.sender.userprofile.avatar %}{{ notification.sender.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
                     class="rounded-circle me-2" alt="Avatar" width="40" height="40">
-                        {% if notification.notification_type == 'like' %}
-                        <strong>{{ notification.sender.username }}</strong> liked your post.
-                        <em>"{{ notification.content_object.text|truncatewords:10 }}"</em>
-                        {% elif notification.notification_type == 'comment' %}
-                        <strong>{{ notification.sender.username }}</strong> commented on your post.
-                        <em>"{{ notification.content_object.text|truncatewords:10 }}"</em>
-                        {% elif notification.notification_type == 'follow' %}
-                        <strong>{{ notification.sender.username }}</strong> started following you.
-                        {% elif notification.notification_type == 'bookmark' %}
-                        <strong>{{ notification.sender.username }}</strong> bookmarked your post.
-                        <em>"{{ notification.content_object.text|truncatewords:10 }}"</em>
-                        {% elif notification.notification_type == 'login' %}
-                        You logged in successfully.
-                        {% endif %}
-                    </a>
-                {% empty %}
-                <p class="text-center">You don't have any notifications</p>
-                {% endfor %}
+                {% if notification.notification_type == 'like' %}
+                <strong>{{ notification.sender.username }}</strong> liked your post.
+                <em>"{{ notification.content_object.text|truncatewords:10 }}"</em>
+                {% elif notification.notification_type == 'comment' %}
+                <strong>{{ notification.sender.username }}</strong> commented on your post.
+                <em>"{{ notification.content_object.text|truncatewords:10 }}"</em>
+                {% elif notification.notification_type == 'follow' %}
+                <strong>{{ notification.sender.username }}</strong> started following you.
+                {% elif notification.notification_type == 'bookmark' %}
+                <strong>{{ notification.sender.username }}</strong> bookmarked your post.
+                <em>"{{ notification.content_object.text|truncatewords:10 }}"</em>
+                {% elif notification.notification_type == 'login' %}
+                You logged in successfully.
+                {% endif %}
+            </a>
+            {% empty %}
+            <p class="text-center">You don't have any notifications</p>
+            {% endfor %}
         </div>
     </div>
 
 </body>
+
 </html>
 {% endblock %}
