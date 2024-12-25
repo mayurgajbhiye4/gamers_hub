@@ -3,24 +3,29 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Following and Followers</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cyborg/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
+
 <body>
     <div class="container mt-5" style="max-width: 650px;">
-        <a href="{% url 'profile' user %}" class="btn btn-light ms-2">Go back</a>
+        <button class="back-button" onclick="history.back()" aria-label="Go Back">
+            <i class="bi bi-arrow-left"></i>
+        </button>
         <h1 class="text-center">Following</h1>
         <div class="list-group">
-            {% for profile in following_profiles %} 
+            {% for profile in following_profiles %}
             <div class="list-group-item d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     <img src="{% if profile.userprofile.avatar %}{{ profile.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
-                    class="rounded-circle me-2" alt="Avatar" width="40" height="40">
+                        class="rounded-circle me-2" alt="Avatar" width="40" height="40">
                     <a href="{% url 'profile' profile.username %}" class="text-decoration-none text-white">
                         {{ profile.username }}
                     </a>
@@ -37,12 +42,13 @@
             <p class="text-center">You are not following anyone yet.</p>
             {% endfor %}
         </div>
-        
+
     </div>
 
     <script src="{% static 'js/follow.js' %}"></script>
 
 </body>
+
 </html>
 
 {% endblock %}
