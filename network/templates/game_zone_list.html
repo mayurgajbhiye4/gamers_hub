@@ -24,8 +24,8 @@
     <a href="{% url 'game_zone' game_title=game %}"
       class="list-group-item list-group-item-action d-flex align-items-center">
 
-      <img src="#" alt="{{ game }}" class="rounded me-3" width="50"
-        onerror="this.src='/static/images/default_game_avatar.jpg';" referrerpolicy="no-referrer">
+      <!-- <img src="#" alt="{{ game }}" class="rounded me-3" width="50"
+        onerror="this.src='/static/images/default_game_avatar.jpg';" referrerpolicy="no-referrer"> -->
       <strong>{{ game }}</strong>
     </a>
     {% endif %} {% empty %}
