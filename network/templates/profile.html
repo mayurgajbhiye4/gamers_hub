@@ -340,6 +340,17 @@
                   </button>
                   {% endif %}
 
+                  <small>
+                    {% if post.game_title and post.game_title != "Unknown Game" %}
+                    Posted
+                    in <a href="{% url 'game_zone' post.game_title %}" class="text-decoration-none">
+                      <span class="badge bg-primary">{{ post.game_title }}</span>
+                    </a>
+                    {% else %}
+                    <p><!-- No text displayed --></p>
+                    {% endif %}
+                  </small>
+
                 </span>
 
                 <!-- Delete Confirmation Modal -->
