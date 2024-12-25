@@ -168,7 +168,11 @@ LOGGING = {
             'filename': '/var/log/django/debug.log',
             'formatter': 'verbose',
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
     },
+},
     'loggers': {
         'django': {
             'handlers': ['console', 'file'],
