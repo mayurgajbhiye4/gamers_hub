@@ -45,7 +45,7 @@ def signUp(request):
 
     return render(request, "registration/signup.html", {'form':form})
 
-@login_required
+@login_required(login_url='/login/')
 def following(request, username):
     # Get the user whose "following" list is to be displayed
     user = get_object_or_404(User, username=username)
@@ -61,7 +61,7 @@ def following(request, username):
         'following_profiles': following_profiles
     })
 
-@login_required 
+@login_required(login_url='/login/') 
 def followers(request, username):   
     user  = get_object_or_404(User, username=username) 
     profile_owner  = get_object_or_404(UserProfile, user=user)
@@ -72,7 +72,7 @@ def followers(request, username):
     return render(request, 'followers.html', {'profile_owner':profile_owner, 'followers': followers_profiles})
 
 
-@login_required
+@login_required(login_url='/login/')
 def toggle_follow(request, username):
     target_user = get_object_or_404(User, username=username)
     current_user = request.user
@@ -94,7 +94,7 @@ def toggle_follow(request, username):
     # Return the updated follow state
     return JsonResponse({'success': True, 'following': following})
 
-@login_required
+@login_required(login_url='/login/')
 def profile(request, username):
     # Fetch the user profile based on the provided username
     profile_owner  = get_object_or_404(User, username=username)
@@ -132,7 +132,7 @@ def validate_file_size(file, max_size):
         raise ValidationError(f"File size exceeds {max_size / (1024 * 1024)} MB")
 
 
-@login_required
+@login_required(login_url='/login/')
 def create_post(request):
     if request.method == 'POST':
         text = request.POST.get('text')
@@ -165,7 +165,7 @@ def create_post(request):
 
     return render(request, 'create_post.html')
 
-@login_required
+@login_required(login_url='/login/')
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
@@ -176,7 +176,7 @@ def delete_post(request, post_id):
     return redirect('profile', username=request.user.username) 
 
 
-@login_required
+@login_required(login_url='/login/')
 def update_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
 
@@ -208,7 +208,7 @@ def update_post(request, post_id):
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
-@login_required
+@login_required(login_url='/login/')
 def post_detail(request, post_id):
     selected_post = get_object_or_404(Post, id=post_id)  # Load the selected post
     user_profile = request.user.userprofile
@@ -246,7 +246,7 @@ def fetch_new_posts(request):
     posts_json = serializers.serialize('json', latest_posts)
     return JsonResponse(posts_json, safe=False)
 
-@login_required 
+@login_required(login_url='/login/')
 def edit_profile(request):
     user_profile = get_object_or_404(UserProfile, user=request.user)
     all_users = User.objects.exclude(id=request.user.id)  # Exclude self from following options
@@ -289,7 +289,7 @@ def edit_profile(request):
     return render(request, 'profile.html', context)
 
 
-@login_required
+@login_required(login_url='/login/')
 def toggle_like(request, post_id):
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
         post = get_object_or_404(Post, id=post_id)
@@ -310,7 +310,7 @@ def toggle_like(request, post_id):
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 
-@login_required
+@login_required(login_url='/login/')
 def add_comment(request, post_id):
     if request.method == "POST":
         post = get_object_or_404(Post, id=post_id)
@@ -348,7 +348,7 @@ def get_profile_recommendations(user, limit=3):
     return recommendations
 
 
-@login_required
+@login_required(login_url='/login/')
 def toggle_bookmark(request, post_id):
     if request.method == "POST":
         post = get_object_or_404(Post, id=post_id)
@@ -368,7 +368,7 @@ def toggle_bookmark(request, post_id):
     return HttpResponseBadRequest("Invalid request")
     
 
-@login_required
+@login_required(login_url='/login/')
 def view_bookmarks(request):
     user_profile = request.user.userprofile
     bookmarks = user_profile.bookmarks.all()  # Fetch all bookmarked posts
@@ -379,7 +379,7 @@ def view_bookmarks(request):
                   {'bookmarks': bookmarks, 
                    'bookmarked_posts': bookmarked_posts })
 
-@login_required
+@login_required(login_url='/login/')
 def global_search(request):
     query = request.GET.get('q', '').strip()
     if query:
@@ -441,7 +441,7 @@ def create_notification(user, sender, notification_type, post=None, comment=None
         comment=comment
     )
 
-@login_required
+@login_required(login_url='/login/')
 def notifications(request):
     notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
     notifications.filter(is_read=False).update(is_read=True)
@@ -454,13 +454,13 @@ def notifications(request):
                   })
 
 
-@login_required
+@login_required(login_url='/login/')
 def check_notifications(request):
     unread = Notification.objects.filter(user=request.user, is_read=False).exists()
     return JsonResponse({'unread': unread})
 
 
-@login_required 
+@login_required(login_url='/login/') 
 def game_zone_list(request):
     # Get distinct game titles from all posts
     game_titles = Post.objects.exclude(game_title__isnull=True).exclude(game_title='').values_list('game_title', flat=True).distinct()
@@ -494,7 +494,7 @@ def game_zone_ajax(request):
     return JsonResponse({'games': list(filtered_games)})
 
 
-@login_required 
+@login_required(login_url='/login/') 
 def game_zone(request, game_title): 
     # Fetch posts filtered by the selected game_title
     posts = Post.objects.filter(game_title=game_title).order_by('-timestamp')
