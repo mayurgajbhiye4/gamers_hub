@@ -94,7 +94,7 @@ def toggle_follow(request, username):
     # Return the updated follow state
     return JsonResponse({'success': True, 'following': following})
 
-
+@login_required
 def profile(request, username):
     # Fetch the user profile based on the provided username
     profile_owner  = get_object_or_404(User, username=username)
@@ -335,7 +335,7 @@ def add_comment(request, post_id):
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
-  
+
 def get_profile_recommendations(user, limit=3):
     # Get a list of user IDs that the current user is already following
     following_user_ids = Follower.objects.filter(user=user).values_list('followed_user_id', flat=True)
@@ -379,7 +379,7 @@ def view_bookmarks(request):
                   {'bookmarks': bookmarks, 
                    'bookmarked_posts': bookmarked_posts })
 
-
+@login_required
 def global_search(request):
     query = request.GET.get('q', '').strip()
     if query:
@@ -460,6 +460,7 @@ def check_notifications(request):
     return JsonResponse({'unread': unread})
 
 
+@login_required 
 def game_zone_list(request):
     # Get distinct game titles from all posts
     game_titles = Post.objects.exclude(game_title__isnull=True).exclude(game_title='').values_list('game_title', flat=True).distinct()
@@ -493,6 +494,7 @@ def game_zone_ajax(request):
     return JsonResponse({'games': list(filtered_games)})
 
 
+@login_required 
 def game_zone(request, game_title): 
     # Fetch posts filtered by the selected game_title
     posts = Post.objects.filter(game_title=game_title).order_by('-timestamp')
