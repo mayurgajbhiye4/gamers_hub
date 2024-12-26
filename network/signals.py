@@ -4,6 +4,7 @@ from .models import *
 from django.contrib.auth.models import User
 import requests
 from decouple import config
+from django.utils.timezone import now
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -74,11 +75,29 @@ def send_bookmark_notification(sender, instance, action, pk_set, **kwargs):
             )
 
 
-@receiver(pre_save, sender=GameZone)
-def fetch_game_image(sender, instance, **kwargs):
-    RAWG_API_KEY = config('RAWG_API_KEY')
-    if not instance.image_url:
-        response = requests.get(f'https://api.rawg.io/api/games?search={instance.title}&key=RAWG_API_KEY')
-        if response.status_code == 200:
-            data = response.json()
-            instance.image_url = data['results'][0]['background_image'] if data['results'] else None
+# @receiver(pre_save, sender=GameZone)
+# def fetch_game_image(sender, instance, **kwargs):
+#     RAWG_API_KEY = config('RAWG_API_KEY')
+#     if not instance.image_url:
+#         response = requests.get(f'https://api.rawg.io/api/games?search={instance.title}&key=RAWG_API_KEY')
+#         if response.status_code == 200:
+#             data = response.json()
+#             instance.image_url = data['results'][0]['background_image'] if data['results'] else None
+
+
+@receiver(m2m_changed, sender=UserProfile.bookmarks.through)
+def update_bookmark_timestamps(sender, instance, action, pk_set, **kwargs):
+    """
+    Update the bookmark_timestamps field whenever bookmarks are added or removed.
+    """
+    if action == "post_add":  # Bookmark added
+        for post_id in pk_set:
+            instance.bookmark_timestamps[str(post_id)] = now().isoformat()
+        instance.save()
+    
+    elif action == "post_remove":  # Bookmark removed
+        for post_id in pk_set:
+            instance.bookmark_timestamps.pop(str(post_id), None)
+        instance.save()
+
+    

@@ -22,6 +22,7 @@ class UserProfile(models.Model):
     bio = models.TextField(blank=True, null=True)
     avatar = models.ImageField(upload_to='avatars/', default='static/images/default_avatar.png', blank=True, null=True)
     bookmarks = models.ManyToManyField(Post, related_name="bookmarked_by", blank=True)
+    bookmark_timestamps = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.user.username 

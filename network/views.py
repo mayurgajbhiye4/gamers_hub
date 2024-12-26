@@ -371,8 +371,15 @@ def toggle_bookmark(request, post_id):
 @login_required(login_url='/login/')
 def view_bookmarks(request):
     user_profile = request.user.userprofile
-    bookmarks = user_profile.bookmarks.all()  # Fetch all bookmarked posts
 
+    # Sort bookmarks by timestamp (descending order)
+    sorted_bookmarks = sorted(
+        user_profile.bookmark_timestamps.items(),
+        key=lambda x: x[1],  # Sort by timestamp
+        reverse=True
+    )
+
+    bookmarks = [Post.objects.get(id=post_id) for post_id, _ in sorted_bookmarks]
     bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
 
     return render(request, 'view_bookmarks.html', 
