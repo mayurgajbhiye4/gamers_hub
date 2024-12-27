@@ -20,7 +20,7 @@ class Post(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     bio = models.TextField(blank=True, null=True)
-    avatar = models.ImageField(upload_to='avatars/', default='images/default_avatar.png', blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/default_avatar.png', blank=True, null=True)
     bookmarks = models.ManyToManyField(Post, related_name="bookmarked_by", blank=True)
     bookmark_timestamps = models.JSONField(default=dict, blank=True)
 
