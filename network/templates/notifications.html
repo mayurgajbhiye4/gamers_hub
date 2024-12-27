@@ -38,9 +38,12 @@
             {% for notification in notifications %}
             <a href="{% if notification.notification_type in post_related_notifications and notification.content_object %}
                           {% url 'post_detail' notification.content_object.id %}
-                      {% else %}
-                          #
-                      {% endif %}" class="list-group-item list-group-item-action mb-4" style="height: 100px;">
+                     {% elif notification.notification_type == 'follow' %}
+                          {% url 'profile' notification.sender.username %}
+                     {% else %}
+                           #
+                     {% endif %}" 
+                class="list-group-item list-group-item-action mb-4" style="height: 100px;">
                 <img src="{% if notification.sender.userprofile.avatar %}{{ notification.sender.userprofile.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
                     class="rounded-circle me-2" alt="Avatar" width="40" height="40">
                 {% if notification.notification_type == 'like' %}
