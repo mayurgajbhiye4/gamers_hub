@@ -237,7 +237,7 @@ def post_detail(request, post_id):
     return render(request, 'home.html', {
         'selected_post': selected_post,
         'likes_count': likes_count,
-        'post_id': post_id,
+        'post_id': selected_post.id,
         'bookmarked_posts': bookmarked_posts
     })
 
