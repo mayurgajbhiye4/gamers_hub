@@ -257,8 +257,8 @@
                       <div class="comment mb-2">
                         <div class="d-flex align-items-center">
                           <a href="{% url 'profile' comment.user.username %}" style="text-decoration: none;">
-                            <strong class="text-primary me-2">{{ comment.user.first_name }} {{ comment.user.last_name
-                              }}</strong>
+                            <strong class="text-primary me-2">{{ comment.user.first_name }}
+                              {{ comment.user.last_name|default:"" }}</strong>
                             <span class="text-muted">@{{ comment.user.username }}</span>
                           </a>
                         </div>
