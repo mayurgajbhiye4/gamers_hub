@@ -1,7 +1,7 @@
 document.getElementById("add-comment-form").addEventListener("submit", function (e) {
             e.preventDefault(); // Prevent the default form submission
             
-            const postId = "{{ post_id }}";
+            const postId = document.getElementById("add-comment-form").dataset.postId;
             const text = document.getElementById("comment-text").value;
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
