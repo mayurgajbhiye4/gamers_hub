@@ -216,7 +216,7 @@
                     <strong>{{ selected_post.author.first_name }} {{ selected_post.author.last_name }}</strong>
                     <span class="text-muted">@{{ selected_post.author.username }}</span>
                   </a>
-                  <span class="text-muted">{{ selected_post.timestamp|timesince }} ago
+                  <span class="text-muted">{{ selected_post.timestamp|time_ago }}
                   </span>
                 </div>
               </div>
@@ -304,7 +304,7 @@
                     <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong>
                     <span class="text-muted">@{{ post.author.username }}</span>
                   </a>
-                  <span class="text-muted">{{ post.timestamp|timesince }} ago
+                  <span class="text-muted">{{ post.timestamp|time_ago }}
                   </span>
                 </div>
               </div>

@@ -306,7 +306,7 @@
                     <div>
                       <strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong> <span
                         class="text-muted">@{{request.user.userprofile}}</span>
-                      <span class="text-muted">{{ post.timestamp|timesince }}
+                      <span class="text-muted">{{ post.timestamp|time_ago }}
                         <!-- 📈{{ post.views_count }} -->
                       </span>
 
