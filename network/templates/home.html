@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+{% load custom_filters %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -261,7 +262,7 @@
                               {{ comment.user.last_name|default:"" }}</strong>
                             <span class="text-muted">
                               @{{ comment.user.username }}
-                              {{ comment.timestamp|timesince }} ago
+                              {{ comment.timestamp|time_ago }}
                             </span>
                           </a>
                         </div>
