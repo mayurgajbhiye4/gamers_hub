@@ -19,10 +19,14 @@ from django.utils.text import slugify
 
 def home(request):
     posts = list(Post.objects.all().order_by('-timestamp'))
-    recommendations = get_profile_recommendations(request.user)
 
-    user_profile = request.user.userprofile
-    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
+    recommendations = []
+    bookmarked_posts = []
+
+    if request.user.is_authenticated:
+        recommendations = get_profile_recommendations(request.user) 
+        user_profile = request.user.userprofile
+        bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
 
     return render(request, 'home.html', 
                   {'posts': posts, 
