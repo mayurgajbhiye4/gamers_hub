@@ -17,7 +17,6 @@ from django.core.cache import cache
 from django.utils.text import slugify
 
 
-@login_required(login_url='/login/')
 def home(request):
     posts = list(Post.objects.all().order_by('-timestamp'))
     recommendations = get_profile_recommendations(request.user)
@@ -208,7 +207,6 @@ def update_post(request, post_id):
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
-@login_required(login_url='/login/')
 def post_detail(request, post_id):
     selected_post = get_object_or_404(Post, id=post_id)  # Load the selected post
     user_profile = request.user.userprofile
