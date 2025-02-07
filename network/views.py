@@ -16,17 +16,13 @@ from decouple import config
 from django.core.cache import cache
 from django.utils.text import slugify
 
-
+@login_required(login_url='/login/')
 def home(request):
     posts = list(Post.objects.all().order_by('-timestamp'))
 
-    recommendations = []
-    bookmarked_posts = []
-
-    if request.user.is_authenticated:
-        recommendations = get_profile_recommendations(request.user) 
-        user_profile = request.user.userprofile
-        bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
+    recommendations = get_profile_recommendations(request.user) 
+    user_profile = request.user.userprofile
+    bookmarked_posts = [post.id for post in user_profile.bookmarks.all()]
 
     return render(request, 'home.html', 
                   {'posts': posts, 
@@ -210,7 +206,7 @@ def update_post(request, post_id):
 
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
-
+@login_required(login_url='/login/')
 def post_detail(request, post_id):
     selected_post = get_object_or_404(Post, id=post_id)  # Load the selected post
     user_profile = request.user.userprofile
